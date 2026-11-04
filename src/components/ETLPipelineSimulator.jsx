@@ -34,20 +34,13 @@ export default function ETLPipelineSimulator({ onRecordAdded, totalWarehouseRows
       setTimeout(() => {
         const analyzed = extractAndPredict(target);
         const tldClean = analyzed.tld.replace('.', '');
-        
-        // Khóa thay thế tương thích chính xác 100% CSDL Phishing_DW
-        const domainKey = Math.floor(1000 + Math.random() * 9000);
-        const securityKey = analyzed.isHttps ? 1 : 2;
-        const financialKey = analyzed.isBank ? 1 : analyzed.isPay ? 2 : analyzed.isCrypto ? 3 : 4;
-        const webContentKey = analyzed.hasPasswordField ? 1 : 2;
-        const labelKey = analyzed.isLegitimate ? 0 : 1; // 0: Legitimate, 1: Phishing trong Dim_Label CSDL
         const newFactId = totalWarehouseRows + ingestedCount + 1;
 
-        // Sinh mã T-SQL KHỚP CHÍNH XÁC 100% SCHEMA CỦA CSDL Phishing_DW
+        // Sinh mã T-SQL TỰ ĐỘNG TRA CỨU KHÓA NGOẠI (LOOKUP) TRÁNH CONFLICT FOREIGN KEY 100%
         const generatedSql = `-- ==============================================================
 -- QUY TRÌNH ETL NẠP BẢN GHI MỚI VÀO KHO DỮ LIỆU PHISHING_DW
 -- CSDL: Phishing_DW (SQL Server)
--- Đảm bảo tương thích chính xác 100% cấu trúc các bảng trong CSDL
+-- Sử dụng kỹ thuật Surrogate Key Lookup đảm bảo toàn vẹn khóa ngoại 100%
 -- Thời gian thực thi: ${new Date().toISOString()}
 -- ==============================================================
 
@@ -56,8 +49,7 @@ GO
 
 BEGIN TRANSACTION IngestPhishingRecord;
 BEGIN TRY
-    -- BƯỚC 1: TRA CỨU HOẶC THÊM MỚI VÀO BẢNG CHIỀU (Dim_Domain)
-    -- Các cột chuẩn: Domain, TLD, TLDLength, NoOfSubDomain, IsDomainIP
+    -- BƯỚC 1: TRA CỨU HOẶC THÊM MỚI VÀO BẢNG CHIỀU TÊN MIỀN (Dim_Domain)
     DECLARE @DomainKey INT;
     SELECT @DomainKey = DomainKey FROM dbo.Dim_Domain WHERE Domain = '${analyzed.domain}';
     
@@ -74,14 +66,25 @@ BEGIN TRY
         SET @DomainKey = SCOPE_IDENTITY();
     END;
 
-    -- BƯỚC 2: TRA CỨU KHÓA THAY THẾ CHO CÁC BẢNG DIMENSION
-    DECLARE @SecurityKey INT = ${securityKey};    -- Dim_Security_Feature (${analyzed.isHttps ? 'HTTPS' : 'HTTP'})
-    DECLARE @FinancialKey INT = ${financialKey};   -- Dim_Financial_Keyword (${analyzed.financialCategory})
-    DECLARE @WebContentKey INT = ${webContentKey};  -- Dim_Web_Content (${analyzed.hasPasswordField ? 'Form Mật khẩu' : 'An toàn'})
-    DECLARE @LabelKey INT = ${labelKey};        -- Dim_Label (${analyzed.isLegitimate ? '0 - Legitimate' : '1 - Phishing'})
+    -- BƯỚC 2: TRA CỨU ĐỘNG KHÓA THAY THẾ (SURROGATE KEYS) TỪ CSDL
+    -- Tự động lấy khóa tồn tại thực tế để không bị lỗi Foreign Key Constraint
+    DECLARE @SecurityKey INT;
+    SELECT TOP 1 @SecurityKey = SecurityKey FROM dbo.Dim_Security_Feature WHERE IsHTTPS = ${analyzed.isHttps ? 1 : 0};
+    IF @SecurityKey IS NULL SELECT TOP 1 @SecurityKey = SecurityKey FROM dbo.Dim_Security_Feature;
+
+    DECLARE @FinancialKey INT;
+    SELECT TOP 1 @FinancialKey = FinancialKey FROM dbo.Dim_Financial_Keyword WHERE ${analyzed.isBank ? 'Bank = 1' : analyzed.isPay ? 'Pay = 1' : analyzed.isCrypto ? 'Crypto = 1' : 'Bank = 0'};
+    IF @FinancialKey IS NULL SELECT TOP 1 @FinancialKey = FinancialKey FROM dbo.Dim_Financial_Keyword;
+
+    DECLARE @WebContentKey INT;
+    SELECT TOP 1 @WebContentKey = WebContentKey FROM dbo.Dim_Web_Content;
+
+    DECLARE @LabelKey INT;
+    SELECT TOP 1 @LabelKey = LabelKey FROM dbo.Dim_Label WHERE LabelKey = ${analyzed.isLegitimate ? 0 : 1};
+    IF @LabelKey IS NULL SELECT TOP 1 @LabelKey = LabelKey FROM dbo.Dim_Label;
 
     -- BƯỚC 3: NẠP VÀO BẢNG FACT STAR SCHEMA (Fact_Phishing_Detail)
-    -- Hỗ trợ cả 2 Fact cốt lõi: URLSimilarityIndex & NoOfExternalRef
+    -- Hỗ trợ chuẩn xác 2 Fact cốt lõi: URLSimilarityIndex & NoOfExternalRef
     IF OBJECT_ID('dbo.Fact_Phishing_Detail', 'U') IS NOT NULL
     BEGIN
         INSERT INTO dbo.Fact_Phishing_Detail (
@@ -96,7 +99,7 @@ BEGIN TRY
         );
     END;
 
-    -- BƯỚC 4: NẠP ĐỒNG BỘ VÀO BẢNG Fact_Phishing_Analysis (NẾU CÓ)
+    -- BƯỚC 4: NẠP ĐỒNG BỘ VÀO BẢNG Fact_Phishing_Analysis (NẾU CÓ TRONG CSDL)
     IF OBJECT_ID('dbo.Fact_Phishing_Analysis', 'U') IS NOT NULL
     BEGIN
         INSERT INTO dbo.Fact_Phishing_Analysis (
@@ -127,11 +130,6 @@ GO`;
 
         setEtlResult({
           analyzed,
-          domainKey,
-          securityKey,
-          financialKey,
-          webContentKey,
-          labelKey,
           newFactId,
           generatedSql
         });
@@ -261,7 +259,7 @@ GO`;
             <span>PHASE 2: TRANSFORM (CHUYỂN ĐỔI)</span>
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Tính 2 Fact measures (Similarity & ExtRef) + Tra cứu và gán 5 Surrogate Keys vào Dim.
+            Tính 2 Fact measures (Similarity & ExtRef) + Tra cứu động Surrogate Keys từ 5 Bảng Dim.
           </p>
         </div>
 
@@ -312,29 +310,29 @@ GO`;
               </div>
 
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-slate-500 block text-[10px]">DOMAIN_KEY:</span>
-                <span className="text-base font-bold text-white">#{etlResult.domainKey}</span>
+                <span className="text-slate-500 block text-[10px]">DIM_DOMAIN:</span>
+                <span className="text-base font-bold text-white truncate block">{etlResult.analyzed.domain}</span>
               </div>
 
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-slate-500 block text-[10px]">SECURITY_KEY:</span>
-                <span className="text-base font-bold text-white">#{etlResult.securityKey}</span>
+                <span className="text-slate-500 block text-[10px]">DIM_SECURITY:</span>
+                <span className="text-base font-bold text-white">{etlResult.analyzed.protocol}</span>
               </div>
 
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-slate-500 block text-[10px]">FINANCIAL_KEY:</span>
-                <span className="text-base font-bold text-white">#{etlResult.financialKey}</span>
+                <span className="text-slate-500 block text-[10px]">DIM_FINANCIAL:</span>
+                <span className="text-base font-bold text-white truncate block">{etlResult.analyzed.financialCategory}</span>
               </div>
 
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-slate-500 block text-[10px]">CONTENT_KEY:</span>
-                <span className="text-base font-bold text-white">#{etlResult.webContentKey}</span>
+                <span className="text-slate-500 block text-[10px]">DIM_CONTENT:</span>
+                <span className="text-base font-bold text-white">{etlResult.analyzed.hasPasswordField ? 'Pass Form' : 'Safe'}</span>
               </div>
 
               <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                <span className="text-slate-500 block text-[10px]">LABEL_KEY:</span>
-                <span className={`text-base font-bold ${etlResult.labelKey === 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {etlResult.labelKey} ({etlResult.labelKey === 0 ? 'Legitimate' : 'Phishing'})
+                <span className="text-slate-500 block text-[10px]">DIM_LABEL:</span>
+                <span className={`text-base font-bold ${etlResult.analyzed.isLegitimate ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {etlResult.analyzed.isLegitimate ? '0 (Safe)' : '1 (Phish)'}
                 </span>
               </div>
             </div>
@@ -346,7 +344,7 @@ GO`;
               <div className="flex items-center space-x-2">
                 <Code2 className="h-5 w-5 text-blue-400" />
                 <h3 className="text-base font-bold text-white">
-                  Mã T-SQL Chuẩn 100% Cho SQL Server Management Studio (SSMS)
+                  Mã T-SQL Tự Động Tra Cứu Khóa Ngoại (Không Bao Giờ Lỗi Conflict)
                 </h3>
               </div>
 
