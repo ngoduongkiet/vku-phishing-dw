@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Database, Cpu, Activity, BarChart2, Layers, Box } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab }) {
+export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, extraRows = 0 }) {
   const tabs = [
     { id: 'scanner', label: '1. AI Quét URL Thời Gian Thực', icon: Shield },
     { id: 'dashboard', label: '2. Dashboard Trực Quan OLAP', icon: BarChart2 },
@@ -39,7 +39,14 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="text-slate-400">SQL Server DW:</span>
-              <span className="font-mono font-semibold text-emerald-400">235,795 Rows</span>
+              <span className="font-mono font-semibold text-emerald-400 transition-all duration-300">
+                {totalRows.toLocaleString()} Rows
+              </span>
+              {extraRows > 0 && (
+                <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 animate-pulse">
+                  +{extraRows}
+                </span>
+              )}
             </div>
 
             <div className="flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">

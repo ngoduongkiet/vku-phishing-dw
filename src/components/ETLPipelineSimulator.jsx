@@ -370,13 +370,23 @@ GO`;
               {etlResult.generatedSql}
             </pre>
 
-            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-slate-400 font-mono pt-3 border-t border-slate-800">
+            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-400 font-mono pt-3 border-t border-slate-800">
               <div className="flex items-center space-x-2">
                 <Server className="h-4 w-4 text-emerald-400" />
                 <span>CSDL Đích: <b>Phishing_DW (SQL Server)</b></span>
               </div>
-              <div className="text-emerald-400 font-bold">
-                ✓ Khớp chính xác cấu trúc Fact_Phishing_Detail & Dim_Domain
+              <div className="flex items-center space-x-3">
+                <span className="text-emerald-400 font-bold">
+                  ✓ FactID mới: #{totalWarehouseRows}
+                </span>
+                <button
+                  onClick={() => onRecordAdded && onRecordAdded()}
+                  title="Bấm để tăng thêm +1 dòng trên thanh trạng thái web"
+                  className="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center space-x-1"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>Đồng bộ thêm (+1 Row)</span>
+                </button>
               </div>
             </div>
           </div>
