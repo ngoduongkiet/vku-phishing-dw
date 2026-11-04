@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { 
   Search, ShieldAlert, ShieldCheck, FileText, Download, ListChecks, 
   Lock, Unlock, Sparkles, RefreshCw, CreditCard, Code2, Globe, Database, 
-  Layers, CheckCircle2, AlertTriangle, ArrowRight
+  Layers, CheckCircle2, AlertTriangle, ArrowRight, Terminal
 } from 'lucide-react';
 import { extractAndPredict } from '../utils/featureExtractor';
+import ETLPipelineSimulator from './ETLPipelineSimulator';
 import confetti from 'canvas-confetti';
 
 export default function URLScanner({ onOpenAudit }) {
@@ -104,8 +105,8 @@ export default function URLScanner({ onOpenAudit }) {
   return (
     <div className="space-y-6">
 
-      {/* Mode Switcher */}
-      <div className="flex items-center space-x-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 w-fit">
+      {/* Mode Switcher - 3 CHẾ ĐỘ CÂN ĐỐI & CHUẨN KHO DỮ LIỆU */}
+      <div className="flex flex-wrap items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 w-fit">
         <button
           onClick={() => setScanTab('single')}
           className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 ${
@@ -128,6 +129,18 @@ export default function URLScanner({ onOpenAudit }) {
         >
           <ListChecks className="h-3.5 w-3.5" />
           <span>2. Quét Hàng Loạt Đa URL (Bảng Đối Chiếu 2 Fact & 5 Dim)</span>
+        </button>
+
+        <button
+          onClick={() => setScanTab('etl')}
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 ${
+            scanTab === 'etl'
+              ? 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/25'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Terminal className="h-3.5 w-3.5" />
+          <span>3. Luồng ETL Nạp Vào Kho (Real-time Ingestion & T-SQL)</span>
         </button>
       </div>
 
@@ -680,6 +693,13 @@ export default function URLScanner({ onOpenAudit }) {
           )}
 
         </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB 3: ETL PIPELINE SIMULATOR (NẠP DỮ LIỆU SỐNG VÀO KHO)  */}
+      {/* ========================================================= */}
+      {scanTab === 'etl' && (
+        <ETLPipelineSimulator />
       )}
 
     </div>
