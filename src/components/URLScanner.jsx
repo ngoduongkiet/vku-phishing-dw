@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldAlert, ShieldCheck, FileText, Download, ListChecks, ArrowRight, Lock, Unlock, Sparkles, RefreshCw } from 'lucide-react';
+import { Search, ShieldAlert, ShieldCheck, FileText, Download, ListChecks, Lock, Unlock, Sparkles, RefreshCw, CreditCard, Code2, Server } from 'lucide-react';
 import { extractAndPredict } from '../utils/featureExtractor';
 import confetti from 'canvas-confetti';
 
@@ -68,7 +68,7 @@ export default function URLScanner({ onOpenAudit }) {
 
   const handleExportBatchCSV = () => {
     if (batchResults.length === 0) return;
-    const headers = ['URL', 'KetLuan', 'DoTinCay', 'Fact1_URLSimilarity', 'Fact2_ExternalRef', 'GiaoThuc', 'TLD'];
+    const headers = ['URL', 'KetLuan', 'DoTinCay', 'Fact1_URLSimilarity', 'Fact2_ExternalRef', 'Dim_Security', 'Dim_Domain_TLD', 'Dim_Financial', 'Dim_WebContent'];
     const rows = batchResults.map(r => [
       `"${r.url}"`,
       r.isLegitimate ? 'Hop phap' : 'Lua dao (Phishing)',
@@ -76,7 +76,9 @@ export default function URLScanner({ onOpenAudit }) {
       r.fact1_similarity,
       r.fact2_externalRef,
       r.protocol,
-      r.tld
+      r.tld,
+      `"${r.financialCategory}"`,
+      r.hasPasswordField ? 'Co Form Pass' : 'Khong'
     ]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -103,7 +105,7 @@ export default function URLScanner({ onOpenAudit }) {
           }`}
         >
           <Search className="h-3.5 w-3.5" />
-          <span>1. Kiểm Tra Từng URL Chi Tiết</span>
+          <span>1. Kiểm Tra URL Chi Tiết (Bóc Tách 2 Fact & 5 Dim)</span>
         </button>
 
         <button
@@ -122,7 +124,7 @@ export default function URLScanner({ onOpenAudit }) {
         </button>
       </div>
 
-      {/* TAB 1: SINGLE URL SCANNER */}
+      {/* TAB 1: SINGLE URL SCANNER (FULL 2 FACTS & 5 DIMENSIONS) */}
       {scanTab === 'single' && (
         <div className="space-y-6">
           
@@ -131,13 +133,13 @@ export default function URLScanner({ onOpenAudit }) {
             <div className="max-w-3xl">
               <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-semibold mb-3">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Trích xuất 5 Chiều Dimension & 2 Fact cốt lõi từ Star Schema</span>
+                <span>Trực quan hóa trọn vẹn 2 Fact đo lường cốt lõi & 5 Chiều Dimension</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Kiểm Tra & Phân Tích An Toàn Đường Dẫn Website
+                Kiểm Tra & Bóc Tách Đặc Trưng Star Schema Thời Gian Thực
               </h1>
               <p className="text-sm text-slate-400 mt-2">
-                Dán đường link cần kiểm tra để mô hình AI bóc tách các đặc trưng của kho dữ liệu và đưa ra phán đoán chính xác.
+                Dán đường link để hệ thống bóc tách dữ liệu vào đúng cấu trúc Star Schema của Kho dữ liệu: Fact trung tâm, Chiều Tên miền, Bảo mật, Tài chính và Nội dung web.
               </p>
             </div>
 
@@ -187,11 +189,11 @@ export default function URLScanner({ onOpenAudit }) {
             </div>
           </div>
 
-          {/* Results Banner & Fact Cards */}
+          {/* Results Banner & Full 6 Star Schema Cards */}
           {result && (
             <div className="space-y-6">
 
-              {/* Verdict Banner */}
+              {/* Verdict Banner (Dim_Label) */}
               <div className={`p-6 rounded-2xl border transition-all ${
                 result.isLegitimate
                   ? 'bg-emerald-950/30 border-emerald-500/40 glow-emerald'
@@ -209,7 +211,7 @@ export default function URLScanner({ onOpenAudit }) {
                         <span className={`text-xs uppercase font-extrabold tracking-wider px-2.5 py-0.5 rounded-full border ${
                           result.isLegitimate ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-red-400 border-red-500/30 bg-red-500/10'
                         }`}>
-                          {result.isLegitimate ? '🟢 LABEL 1 • HỢP PHÁP (SAFE)' : '🔴 LABEL 0 • NGUY CƠ LỪA ĐẢO CAO'}
+                          {result.isLegitimate ? 'DIM_LABEL: LABEL 1 • HỢP PHÁP (SAFE)' : 'DIM_LABEL: LABEL 0 • NGUY CƠ LỪA ĐẢO CAO'}
                         </span>
                         <span className="text-xs text-slate-400 font-mono">Thời gian phản hồi: 0.02s</span>
                       </div>
@@ -240,10 +242,10 @@ export default function URLScanner({ onOpenAudit }) {
                 </div>
               </div>
 
-              {/* 4 Cards: 2 Facts & 2 Key Dimensions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* BẢNG 6 THẺ TRỌN VẸN: 2 FACT CỐT LÕI + 4 CHIỀU DIMENSION (KHÔNG THIẾU CHIỀU NÀO) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 
-                {/* Fact 1 */}
+                {/* 1. FACT 1 */}
                 <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
                   <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
                     <span>FACT 1: URL SIMILARITY</span>
@@ -259,11 +261,11 @@ export default function URLScanner({ onOpenAudit }) {
                     ></div>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-2">
-                    {result.fact1_similarity > 80 ? 'Tên miền chuẩn gốc, không nhái' : 'Có độ lệch cao do biến dạng tên thương hiệu'}
+                    {result.fact1_similarity > 80 ? 'Tên miền chuẩn gốc, không có dấu hiệu nhái' : 'Có độ lệch cao do biến dạng tên thương hiệu'}
                   </p>
                 </div>
 
-                {/* Fact 2 */}
+                {/* 2. FACT 2 */}
                 <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
                   <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
                     <span>FACT 2: LIÊN KẾT NGOÀI</span>
@@ -283,11 +285,11 @@ export default function URLScanner({ onOpenAudit }) {
                   </p>
                 </div>
 
-                {/* Dim Security */}
+                {/* 3. DIM SECURITY */}
                 <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
                   <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-                    <span>GIAO THỨC BẢO MẬT</span>
-                    <span className="font-mono text-emerald-400 font-bold">Dim_Security</span>
+                    <span>DIM_SECURITY_FEATURE</span>
+                    <span className="font-mono text-emerald-400 font-bold">11.8% Trọng số</span>
                   </div>
                   <div className="flex items-center space-x-2 text-xl font-black text-white">
                     {result.isHttps ? (
@@ -307,19 +309,61 @@ export default function URLScanner({ onOpenAudit }) {
                   </p>
                 </div>
 
-                {/* Dim Domain */}
+                {/* 4. DIM DOMAIN */}
                 <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
                   <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-                    <span>CHIỀU TÊN MIỀN</span>
-                    <span className="font-mono text-blue-400 font-bold">Dim_Domain</span>
+                    <span>DIM_DOMAIN</span>
+                    <span className="font-mono text-blue-400 font-bold">Đuôi {result.tld}</span>
                   </div>
                   <div className="text-lg font-black text-white font-mono truncate">
                     {result.domain}
                   </div>
                   <div className="flex items-center space-x-2 text-xs text-slate-400 mt-3 font-mono">
-                    <span>Đuôi: <b className="text-blue-400">{result.tld}</b></span>
-                    <span>• Sub: <b className="text-white">{result.noSubDomain}</b></span>
+                    <span>Sub: <b className="text-white">{result.noSubDomain}</b></span>
                     <span>• IP: <b className="text-white">{result.isIP ? 'Có' : 'Không'}</b></span>
+                    <span>• Dài: <b className="text-white">{result.domainLength} ký tự</b></span>
+                  </div>
+                </div>
+
+                {/* 5. DIM FINANCIAL KEYWORD */}
+                <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                    <span>DIM_FINANCIAL_KEYWORD</span>
+                    <CreditCard className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <div className="text-lg font-black text-white">
+                    {result.financialCategory}
+                  </div>
+                  <div className="flex items-center space-x-1.5 mt-3 text-xs">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      result.isBank || result.isPay || result.isCrypto
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : 'bg-slate-800 text-slate-500'
+                    }`}>
+                      {result.isBank ? '🏦 Ngân Hàng (Bank)' : result.isPay ? '💳 Cổng Pay' : result.isCrypto ? '🪙 Tiền Ảo (Crypto)' : 'Không Có Dấu Hiệu'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-2">
+                    Phát hiện từ khóa nhạy cảm tài chính bị kẻ lừa đảo khai thác
+                  </p>
+                </div>
+
+                {/* 6. DIM WEB CONTENT */}
+                <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-xl">
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
+                    <span>DIM_WEB_CONTENT</span>
+                    <Code2 className="h-4 w-4 text-purple-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white flex items-center space-x-1.5">
+                    {result.hasPasswordField ? (
+                      <span className="text-red-400">🚨 Chứa Form Nhập Mật Khẩu</span>
+                    ) : (
+                      <span className="text-emerald-400">✓ Không Có Form Mật Khẩu Lạ</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-3 font-mono space-y-1">
+                    <div>Form Gửi Ra Ngoài: <b className="text-white">{result.hasExternalSubmit ? 'Có (Nguy cơ)' : 'Không'}</b></div>
+                    <div>Form Ẩn Giấu: <b className="text-white">{result.hasHiddenFields ? 'Có (Phishing)' : 'Không'}</b></div>
                   </div>
                 </div>
 
@@ -359,7 +403,7 @@ export default function URLScanner({ onOpenAudit }) {
         </div>
       )}
 
-      {/* TAB 2: BATCH URL SCANNER (TÍNH NĂNG THỰC TẾ CỰC CAO) */}
+      {/* TAB 2: BATCH URL SCANNER */}
       {scanTab === 'batch' && (
         <div className="space-y-6">
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8">
@@ -439,17 +483,18 @@ export default function URLScanner({ onOpenAudit }) {
                 </div>
               </div>
 
-              {/* Table */}
+              {/* Table with 2 Facts + Key Dims */}
               <div className="overflow-x-auto border border-slate-800 rounded-xl">
                 <table className="w-full text-left text-xs font-mono">
                   <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
                     <tr>
                       <th className="py-2.5 px-3">STT</th>
                       <th className="py-2.5 px-3">Đường dẫn URL</th>
-                      <th className="py-2.5 px-3 text-center">Kết luận</th>
+                      <th className="py-2.5 px-3 text-center">Dim_Label</th>
                       <th className="py-2.5 px-3 text-right">Fact 1 (Sim)</th>
                       <th className="py-2.5 px-3 text-right">Fact 2 (ExtRef)</th>
-                      <th className="py-2.5 px-3 text-center">Giao thức</th>
+                      <th className="py-2.5 px-3 text-center">Dim_Security</th>
+                      <th className="py-2.5 px-3">Dim_Financial</th>
                       <th className="py-2.5 px-3 text-right">Độ tin cậy</th>
                     </tr>
                   </thead>
@@ -470,6 +515,7 @@ export default function URLScanner({ onOpenAudit }) {
                         <td className="py-2.5 px-3 text-right font-bold">{r.fact1_similarity.toFixed(1)}</td>
                         <td className="py-2.5 px-3 text-right font-bold">{r.fact2_externalRef.toFixed(1)}</td>
                         <td className="py-2.5 px-3 text-center">{r.protocol}</td>
+                        <td className="py-2.5 px-3 text-slate-400 truncate">{r.financialCategory}</td>
                         <td className="py-2.5 px-3 text-right font-bold font-mono">{r.confidence}%</td>
                       </tr>
                     ))}
