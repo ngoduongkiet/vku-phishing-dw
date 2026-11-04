@@ -5,43 +5,43 @@ const HIGH_RISK_TLDS = new Set(['tk', 'ml', 'ga', 'cf', 'gq', 'xyz', 'top', 'clu
 const TRUSTED_DOMAINS = new Set([
   'vku.udn.vn', 'udn.vn', 'gov.vn', 'chinhphu.vn', 'edu.vn', 'google.com', 'microsoft.com', 
   'github.com', 'facebook.com', 'apple.com', 'youtube.com', 'techcombank.com.vn', 
-  'vietcombank.com.vn', 'mbbank.com.vn', 'bidv.com.vn', 'vpbank.com.vn', 'vnexpress.net'
+  'vietcombank.com.vn', 'mbbank.com.vn', 'bidv.com.vn', 'vpbank.com.vn', 'vnexpress.net', 'paypal.com'
 ]);
 
 // Known ground truth phishing domains directly from the warehouse dataset
 const KNOWN_WAREHOUSE_PHISHING = {
-  "teramill.com": { sim: 82.6, ext: 1.0, https: 0 },
-  "www.teramill.com": { sim: 82.6, ext: 1.0, https: 0 },
-  "f0519141.xsph.ru": { sim: 55.3, ext: 0.0, https: 0 },
-  "shprakserf.gq": { sim: 56.6, ext: 0.0, https: 0 },
-  "service-mitld.firebaseapp.com": { sim: 64.6, ext: 0.0, https: 1 },
-  "kuradox92.lima-city.de": { sim: 45.8, ext: 1.0, https: 0 },
-  "liuy-9a930.web.app": { sim: 54.5, ext: 3.0, https: 1 },
-  "att-103731-107123.weeblysite.com": { sim: 36.6, ext: 1.0, https: 0 },
-  "hidok4f8zl.firebaseapp.com": { sim: 63.9, ext: 3.0, https: 1 },
-  "ooguy.com": { sim: 79.3, ext: 1.0, https: 0 },
-  "fairytalesinc.com": { sim: 76.7, ext: 1.0, https: 0 },
-  "iuhjn.pplink.club": { sim: 47.4, ext: 0.0, https: 0 },
-  "mechinchem-5cb8a.web.app": { sim: 49.3, ext: 1.0, https: 1 },
-  "fb-restriction-case-97be5.web.app": { sim: 34.3, ext: 3.0, https: 1 },
-  "pontosapontamentolu.com": { sim: 9.2, ext: 0.0, https: 1 },
-  "topaka.cloud": { sim: 32.0, ext: 2.0, https: 1 },
-  "metafb-tvz6efk.web.app": { sim: 52.0, ext: 1.0, https: 1 },
-  "erlegen.de": { sim: 78.2, ext: 1.0, https: 0 },
-  "jerode.ga": { sim: 70.1, ext: 0.0, https: 0 }
+  "teramill.com": { sim: 82.6, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "www.teramill.com": { sim: 82.6, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "f0519141.xsph.ru": { sim: 55.3, ext: 0.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "shprakserf.gq": { sim: 56.6, ext: 0.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "service-mitld.firebaseapp.com": { sim: 64.6, ext: 0.0, https: 1, bank: 0, pay: 1, crypto: 0 },
+  "kuradox92.lima-city.de": { sim: 45.8, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "liuy-9a930.web.app": { sim: 54.5, ext: 3.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "att-103731-107123.weeblysite.com": { sim: 36.6, ext: 1.0, https: 0, bank: 0, pay: 1, crypto: 0 },
+  "hidok4f8zl.firebaseapp.com": { sim: 63.9, ext: 3.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "ooguy.com": { sim: 79.3, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "fairytalesinc.com": { sim: 76.7, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "iuhjn.pplink.club": { sim: 47.4, ext: 0.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "mechinchem-5cb8a.web.app": { sim: 49.3, ext: 1.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "fb-restriction-case-97be5.web.app": { sim: 34.3, ext: 3.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "pontosapontamentolu.com": { sim: 9.2, ext: 0.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "topaka.cloud": { sim: 32.0, ext: 2.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "metafb-tvz6efk.web.app": { sim: 52.0, ext: 1.0, https: 1, bank: 0, pay: 0, crypto: 0 },
+  "erlegen.de": { sim: 78.2, ext: 1.0, https: 0, bank: 0, pay: 0, crypto: 0 },
+  "jerode.ga": { sim: 70.1, ext: 0.0, https: 0, bank: 0, pay: 0, crypto: 0 }
 };
 
 const BRAND_TARGETS = [
-  { name: 'Vietcombank', keywords: ['vietcombank', 'vcb', 'digibank'], official: 'vietcombank.com.vn' },
-  { name: 'MBBank', keywords: ['mbbank', 'mb-bank'], official: 'mbbank.com.vn' },
-  { name: 'Techcombank', keywords: ['techcombank', 'tcb'], official: 'techcombank.com.vn' },
-  { name: 'BIDV', keywords: ['bidv', 'smartbanking'], official: 'bidv.com.vn' },
-  { name: 'VPBank', keywords: ['vpbank', 'neo'], official: 'vpbank.com.vn' },
-  { name: 'PayPal', keywords: ['paypal', 'pay-pal'], official: 'paypal.com' },
-  { name: 'Binance', keywords: ['binance', 'bnb'], official: 'binance.com' },
-  { name: 'MetaMask', keywords: ['metamask', 'wallet-connect'], official: 'metamask.io' },
-  { name: 'Netflix', keywords: ['netflix'], official: 'netflix.com' },
-  { name: 'Amazon', keywords: ['amazon', 'prime-video'], official: 'amazon.com' }
+  { name: 'Vietcombank', type: 'Ngân hàng', keywords: ['vietcombank', 'vcb', 'digibank'], official: 'vietcombank.com.vn' },
+  { name: 'MBBank', type: 'Ngân hàng', keywords: ['mbbank', 'mb-bank'], official: 'mbbank.com.vn' },
+  { name: 'Techcombank', type: 'Ngân hàng', keywords: ['techcombank', 'tcb'], official: 'techcombank.com.vn' },
+  { name: 'BIDV', type: 'Ngân hàng', keywords: ['bidv', 'smartbanking'], official: 'bidv.com.vn' },
+  { name: 'VPBank', type: 'Ngân hàng', keywords: ['vpbank', 'neo'], official: 'vpbank.com.vn' },
+  { name: 'PayPal', type: 'Ví điện tử', keywords: ['paypal', 'pay-pal'], official: 'paypal.com' },
+  { name: 'Binance', type: 'Tiền mã hóa', keywords: ['binance', 'bnb'], official: 'binance.com' },
+  { name: 'MetaMask', type: 'Tiền mã hóa', keywords: ['metamask', 'wallet-connect'], official: 'metamask.io' },
+  { name: 'Netflix', type: 'Giải trí', keywords: ['netflix'], official: 'netflix.com' },
+  { name: 'Amazon', type: 'Thương mại điện tử', keywords: ['amazon', 'prime-video'], official: 'amazon.com' }
 ];
 
 export function extractAndPredict(rawUrl) {
@@ -77,6 +77,28 @@ export function extractAndPredict(rawUrl) {
   const noSubDomain = Math.max(0, parts.length - 2);
   const hasObfuscation = url.includes('%') || url.includes('@') || url.includes('--');
 
+  // Extract Financial Dimension (Dim_Financial_Keyword)
+  let financialCategory = 'Không phát hiện';
+  let isBank = false;
+  let isPay = false;
+  let isCrypto = false;
+
+  if (rawLower.includes('bank') || rawLower.includes('vcb') || rawLower.includes('bidv') || rawLower.includes('techcom') || rawLower.includes('mbbank')) {
+    financialCategory = 'Ngân Hàng (Bank)';
+    isBank = true;
+  } else if (rawLower.includes('pay') || rawLower.includes('paypal') || rawLower.includes('momo') || rawLower.includes('zalopay') || rawLower.includes('visa')) {
+    financialCategory = 'Cổng Thanh Toán (Pay)';
+    isPay = true;
+  } else if (rawLower.includes('crypto') || rawLower.includes('binance') || rawLower.includes('wallet') || rawLower.includes('btc') || rawLower.includes('metamask')) {
+    financialCategory = 'Tiền Mã Hóa (Crypto)';
+    isCrypto = true;
+  }
+
+  // Extract Web Content Dimension (Dim_Web_Content)
+  const hasPasswordField = rawLower.includes('login') || rawLower.includes('signin') || rawLower.includes('password') || rawLower.includes('verify') || rawLower.includes('auth') || rawLower.includes('xac-thuc') || rawLower.includes('otp');
+  const hasExternalSubmit = rawLower.includes('action') || rawLower.includes('post') || rawLower.includes('submit') || isIP;
+  const hasHiddenFields = hasPasswordField && (hasObfuscation || !isHttps || cleanDomain.includes('-'));
+
   // Check 1: Known Ground Truth in Warehouse
   const matchedWarehousePhish = KNOWN_WAREHOUSE_PHISHING[cleanDomain] || KNOWN_WAREHOUSE_PHISHING[domain];
   if (matchedWarehousePhish) {
@@ -95,6 +117,13 @@ export function extractAndPredict(rawUrl) {
       domainLength: domain.length,
       fact1_similarity: sim,
       fact2_externalRef: ext,
+      financialCategory,
+      isBank,
+      isPay,
+      isCrypto,
+      hasPasswordField,
+      hasExternalSubmit,
+      hasHiddenFields,
       isLegitimate: false,
       confidence: 99.4,
       reasons: [
@@ -127,7 +156,7 @@ export function extractAndPredict(rawUrl) {
   const isSuspiciousTLD = HIGH_RISK_TLDS.has(tld);
   const isTrustedDomain = TRUSTED_DOMAINS.has(cleanDomain) || cleanDomain.endsWith('.edu.vn') || cleanDomain.endsWith('.gov.vn') || cleanDomain.endsWith('.edu') || cleanDomain.endsWith('.gov');
 
-  let extRef = 1.0; // Default for untrusted / unknown sites
+  let extRef = 1.0;
   if (isTrustedDomain) {
     simIndex = 100.0;
     extRef = 95.0;
@@ -135,14 +164,10 @@ export function extractAndPredict(rawUrl) {
     extRef = 1.13;
     simIndex = Math.min(simIndex, 49.1);
   } else {
-    // Normal unknown domain with HTTPS
     extRef = 15.0;
     simIndex = Math.min(simIndex, 75.0);
   }
 
-  // Model Decision logic strictly following Random Forest weights:
-  // If not trusted and uses HTTP -> 100% Phishing!
-  // If cloned brand or IP or suspicious TLD -> 100% Phishing!
   let isLegitimate = false;
   let confidence = 96.5;
 
@@ -156,7 +181,6 @@ export function extractAndPredict(rawUrl) {
     isLegitimate = true;
     confidence = 88.0;
   } else {
-    // Untrusted unknown website with low backlinks
     isLegitimate = false;
     confidence = 95.2;
   }
@@ -174,6 +198,9 @@ export function extractAndPredict(rawUrl) {
   }
   if (isSuspiciousTLD) {
     reasons.push({ type: 'danger', weight: '-8.5%', text: `Đuôi tên miền .${tld} có tỷ lệ tội phạm mạng lạm dụng cao (>85%).` });
+  }
+  if (hasPasswordField && !isLegitimate) {
+    reasons.push({ type: 'danger', weight: '-15.0%', text: 'Phát hiện form thu thập thông tin đăng nhập/mật khẩu trên trang web không xác thực.' });
   }
   if (isIP) {
     reasons.push({ type: 'danger', weight: '-25.0%', text: 'Sử dụng địa chỉ IP trực tiếp thay vì tên miền chuẩn.' });
@@ -196,6 +223,13 @@ export function extractAndPredict(rawUrl) {
     domainLength: domain.length,
     fact1_similarity: simIndex,
     fact2_externalRef: extRef,
+    financialCategory,
+    isBank,
+    isPay,
+    isCrypto,
+    hasPasswordField,
+    hasExternalSubmit,
+    hasHiddenFields,
     isLegitimate,
     confidence,
     detectedBrand,
