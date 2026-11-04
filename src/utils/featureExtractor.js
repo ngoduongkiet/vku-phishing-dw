@@ -104,12 +104,13 @@ export function extractAndPredict(rawUrl) {
   if (matchedWarehousePhish) {
     const sim = matchedWarehousePhish.sim;
     const ext = matchedWarehousePhish.ext;
+    const isHttpsFromDb = matchedWarehousePhish.https === 1;
     return {
       url: rawUrl,
       domain,
-      protocol: protocol.replace(':', '').toUpperCase(),
+      protocol: isHttpsFromDb ? 'HTTPS' : 'HTTP',
       tld: '.' + tld,
-      isHttps: matchedWarehousePhish.https === 1,
+      isHttps: isHttpsFromDb,
       isIP,
       noSubDomain,
       hasObfuscation,

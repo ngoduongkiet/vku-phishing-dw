@@ -57,26 +57,40 @@ export default function AuditModal({ result, onClose }) {
           </div>
         </div>
 
-        {/* Star Schema Evidence Grid */}
-        <div className="grid grid-cols-2 gap-3 my-5 text-xs font-mono">
+        {/* Star Schema Evidence Grid - ĐẦY ĐỦ 2 FACT & 5 DIMENSION */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 my-5 text-xs font-mono">
           <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
-            <span className="text-slate-400 block text-[10px]">FACT 1 (SIMILARITY INDEX):</span>
+            <span className="text-slate-400 block text-[10px]">FACT 1 (SIMILARITY):</span>
             <span className="text-base font-bold text-white">{result.fact1_similarity.toFixed(1)} / 100</span>
           </div>
 
           <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
-            <span className="text-slate-400 block text-[10px]">FACT 2 (EXTERNAL REFERENCES):</span>
+            <span className="text-slate-400 block text-[10px]">FACT 2 (EXTERNAL REFS):</span>
             <span className="text-base font-bold text-white">{result.fact2_externalRef.toFixed(1)} links</span>
           </div>
 
           <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
-            <span className="text-slate-400 block text-[10px]">GIAO THỨC TRUYỀN THÔNG:</span>
-            <span className="text-sm font-bold text-white">{result.isHttps ? 'HTTPS (Bảo mật)' : 'HTTP (Không bảo mật)'}</span>
+            <span className="text-slate-400 block text-[10px]">DIM 1 (BẢO MẬT SSL):</span>
+            <span className={`text-sm font-bold ${result.isHttps ? 'text-emerald-400' : 'text-red-400'}`}>
+              {result.protocol} {result.isHttps ? '(Mã hóa)' : '(Trần)'}
+            </span>
           </div>
 
           <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
-            <span className="text-slate-400 block text-[10px]">ĐUÔI TÊN MIỀN (TLD):</span>
+            <span className="text-slate-400 block text-[10px]">DIM 2 (TÊN MIỀN TLD):</span>
             <span className="text-sm font-bold text-blue-400">{result.tld}</span>
+          </div>
+
+          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
+            <span className="text-slate-400 block text-[10px]">DIM 3 (TÀI CHÍNH):</span>
+            <span className="text-sm font-bold text-amber-400 truncate block">{result.financialCategory}</span>
+          </div>
+
+          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
+            <span className="text-slate-400 block text-[10px]">DIM 4 (NỘI DUNG WEB):</span>
+            <span className={`text-sm font-bold ${result.hasPasswordField ? 'text-red-400' : 'text-slate-300'}`}>
+              {result.hasPasswordField ? 'Có Form Password' : 'Không có Form lạ'}
+            </span>
           </div>
         </div>
 
