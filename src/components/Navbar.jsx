@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Database, Cpu, Activity, BarChart2, Layers, Box } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, extraRows = 0 }) {
+export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, extraRows = 0, onResetRows }) {
   const tabs = [
     { id: 'scanner', label: '1. AI Quét URL Thời Gian Thực', icon: Shield },
     { id: 'dashboard', label: '2. Dashboard Trực Quan OLAP', icon: BarChart2 },
@@ -43,9 +43,20 @@ export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, ex
                 {totalRows.toLocaleString()} Rows
               </span>
               {extraRows > 0 && (
-                <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 animate-pulse">
-                  +{extraRows}
-                </span>
+                <div className="flex items-center space-x-1">
+                  <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 animate-pulse">
+                    +{extraRows}
+                  </span>
+                  {onResetRows && (
+                    <button 
+                      onClick={onResetRows}
+                      title="Đặt lại số dòng gốc (235,795)"
+                      className="text-slate-500 hover:text-red-400 text-[10px] px-1 hover:bg-slate-800 rounded transition-colors"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               )}
             </div>
 

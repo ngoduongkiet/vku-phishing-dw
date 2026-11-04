@@ -31,6 +31,13 @@ export default function App() {
     });
   };
 
+  const handleResetRows = () => {
+    setExtraRows(0);
+    try {
+      localStorage.removeItem('vku_phishing_extra_rows');
+    } catch (e) {}
+  };
+
   const totalWarehouseRows = 235795 + extraRows;
 
   return (
@@ -41,6 +48,7 @@ export default function App() {
         setActiveTab={setActiveTab} 
         totalRows={totalWarehouseRows}
         extraRows={extraRows}
+        onResetRows={handleResetRows}
       />
 
       {/* Main Container */}
@@ -49,6 +57,7 @@ export default function App() {
           <URLScanner 
             onOpenAudit={(res) => setAuditTarget(res)} 
             onRecordAdded={handleAddRow}
+            onResetRows={handleResetRows}
             totalRows={totalWarehouseRows}
             extraRows={extraRows}
           />

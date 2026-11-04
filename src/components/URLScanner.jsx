@@ -8,7 +8,7 @@ import { extractAndPredict } from '../utils/featureExtractor';
 import ETLPipelineSimulator from './ETLPipelineSimulator';
 import confetti from 'canvas-confetti';
 
-export default function URLScanner({ onOpenAudit, onRecordAdded, totalRows = 235795, extraRows = 0 }) {
+export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, totalRows = 235795, extraRows = 0 }) {
   const [scanTab, setScanTab] = useState('single'); // 'single' or 'batch'
 
   // Single URL state - HOÀN TOÀN TRỐNG MẶC ĐỊNH ĐỂ NGƯỜI DÙNG TỰ NHẬP
@@ -701,7 +701,9 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, totalRows = 235
       {scanTab === 'etl' && (
         <ETLPipelineSimulator 
           onRecordAdded={onRecordAdded} 
+          onResetRows={onResetRows}
           totalWarehouseRows={totalRows}
+          extraRows={extraRows}
         />
       )}
 

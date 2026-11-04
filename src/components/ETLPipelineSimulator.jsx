@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { 
   Database, RefreshCw, CheckCircle2, ArrowRight, Copy, Check, 
-  Layers, Code2, Server, Terminal, Sparkles, FileText, ShieldAlert, ShieldCheck
+  Layers, Code2, Server, Terminal, Sparkles, FileText, ShieldAlert, ShieldCheck, RotateCcw
 } from 'lucide-react';
 import { extractAndPredict } from '../utils/featureExtractor';
 
-export default function ETLPipelineSimulator({ onRecordAdded, totalWarehouseRows = 235795 }) {
+export default function ETLPipelineSimulator({ onRecordAdded, onResetRows, totalWarehouseRows = 235795, extraRows = 0 }) {
   const [etlUrl, setEtlUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [etlStep, setEtlStep] = useState(0); // 0: idle, 1: extract, 2: transform, 3: load (done)
   const [etlResult, setEtlResult] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [ingestedCount, setIngestedCount] = useState(0);
+  const [hasCopiedThisResult, setHasCopiedThisResult] = useState(false);
 
   const sampleEtlLinks = [
     { label: '🚨 Nhái Ngân Hàng OTP', url: 'http://vcb-digibank-xac-thuc-otp.xyz/login' },
@@ -27,6 +27,7 @@ export default function ETLPipelineSimulator({ onRecordAdded, totalWarehouseRows
     setIsProcessing(true);
     setEtlStep(1); // Bắt đầu Extract
     setEtlResult(null);
+    setHasCopiedThisResult(false);
 
     setTimeout(() => {
       setEtlStep(2); // Sang Transform
@@ -34,7 +35,7 @@ export default function ETLPipelineSimulator({ onRecordAdded, totalWarehouseRows
       setTimeout(() => {
         const analyzed = extractAndPredict(target);
         const tldClean = analyzed.tld.replace('.', '');
-        const newFactId = totalWarehouseRows + ingestedCount + 1;
+        const newFactId = totalWarehouseRows + (hasCopiedThisResult ? 0 : 1);
 
         // Sinh mã T-SQL TỰ ĐỘNG TRA CỨU KHÓA NGOẠI (LOOKUP) TRÁNH CONFLICT FOREIGN KEY 100%
         const generatedSql = `-- ==============================================================
@@ -67,7 +68,7 @@ BEGIN TRY
     END;
 
     -- BƯỚC 2: TRA CỨU ĐỘNG KHÓA THAY THẾ (SURROGATE KEYS) TỪ CSDL
-    -- Tự động lấy khóa tồn tại thực tế để không bị lỗi Foreign Key Constraint
+    -- Tự động lấy khóa tồn tại thực tế để không bao giờ bị lỗi Foreign Key Constraint
     DECLARE @SecurityKey INT;
     SELECT TOP 1 @SecurityKey = SecurityKey FROM dbo.Dim_Security_Feature WHERE IsHTTPS = ${analyzed.isHttps ? 1 : 0};
     IF @SecurityKey IS NULL SELECT TOP 1 @SecurityKey = SecurityKey FROM dbo.Dim_Security_Feature;
@@ -119,7 +120,7 @@ BEGIN TRY
     END;
 
     COMMIT TRANSACTION IngestPhishingRecord;
-    PRINT '>> [ETL SUCCESS]: Da nap FactID #${newFactId} thanh cong vao Kho Du Lieu Phishing_DW!';
+    PRINT '>> [ETL SUCCESS]: Da nap FactID moi thanh cong vao Kho Du Lieu Phishing_DW!';
 END TRY
 BEGIN CATCH
     ROLLBACK TRANSACTION IngestPhishingRecord;
@@ -134,19 +135,25 @@ GO`;
           generatedSql
         });
 
-        setEtlStep(3); // Hoàn tất Load
+        setEtlStep(3); // Hoàn tất sinh T-SQL
         setIsProcessing(false);
-        setIngestedCount(prev => prev + 1);
-        if (onRecordAdded) onRecordAdded();
+        // KHÔNG TỰ ĐỘNG TĂNG SỐ Ở ĐÂY NỮA - CHỈ KHI COPY HOẶC XÁC NHẬN MỚI TĂNG!
       }, 350);
     }, 350);
   };
 
+  // CHỈ KHI BẤM COPY ĐỂ MANG VÀO SQL SERVER THÌ MỚI ĐƯỢC TÍNH TĂNG +1!
   const handleCopySql = () => {
     if (!etlResult || !etlResult.generatedSql) return;
     navigator.clipboard.writeText(etlResult.generatedSql);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+
+    if (!hasCopiedThisResult) {
+      setHasCopiedThisResult(true);
+      if (onRecordAdded) onRecordAdded();
+    }
+
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -164,22 +171,38 @@ GO`;
               Mô Phỏng Luồng ETL & Tự Động Nạp Dữ Liệu Vào Kho SQL Server
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-              Khi phát hiện một URL độc hại ngoài thực tế, hệ thống sẽ thực thi chu trình ETL tự động: bóc tách đặc trưng thô, ánh xạ Surrogate Keys vào 5 Bảng Dimension, đo lường 2 Fact và sinh lệnh T-SQL để nạp vào CSDL <code className="text-amber-400 font-mono">Phishing_DW</code>.
+              Khi phát hiện URL độc hại, hệ thống bóc tách đặc trưng thô, ánh xạ Surrogate Keys vào 5 Bảng Dimension, đo lường 2 Fact và sinh câu lệnh T-SQL để nạp vào CSDL <code className="text-amber-400 font-mono">Phishing_DW</code>.
             </p>
           </div>
 
           {/* Metric Box */}
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-center min-w-[180px]">
+          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-center min-w-[200px]">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Trạng thái CSDL Kho</span>
             <div className="text-xl font-black text-emerald-400 font-mono mt-1">
-              {(totalWarehouseRows + ingestedCount).toLocaleString()}
+              {totalWarehouseRows.toLocaleString()}
               <span className="text-xs text-slate-500 font-normal ml-1">Rows</span>
             </div>
-            {ingestedCount > 0 && (
-              <span className="text-[10px] text-emerald-400 font-mono mt-0.5 inline-block">
-                +{ingestedCount} bản ghi vừa nạp
-              </span>
-            )}
+            
+            <div className="flex items-center justify-center space-x-2 mt-1">
+              {extraRows > 0 ? (
+                <>
+                  <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                    +{extraRows} bản ghi vừa nạp
+                  </span>
+                  {onResetRows && (
+                    <button
+                      onClick={onResetRows}
+                      title="Đặt lại về số dòng gốc 235,795"
+                      className="text-[10px] text-slate-500 hover:text-red-400 underline cursor-pointer"
+                    >
+                      Đặt lại
+                    </button>
+                  )}
+                </>
+              ) : (
+                <span className="text-[10px] text-slate-500 font-mono">Số dòng chuẩn CSDL</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -206,7 +229,7 @@ GO`;
             ) : (
               <>
                 <Terminal className="h-4 w-4 text-slate-950" />
-                <span>⚡ CHẠY LUỒNG ETL VÀO KHO</span>
+                <span>⚡ SINH MÃ ETL T-SQL</span>
               </>
             )}
           </button>
@@ -274,7 +297,7 @@ GO`;
             <span>PHASE 3: LOAD (NẠP FACT TABLE)</span>
           </div>
           <p className="text-[11px] text-slate-400 mt-1">
-            Tạo câu lệnh T-SQL INSERT hoàn chỉnh và nạp thành công vào CSDL SQL Server Phishing_DW.
+            Sinh câu lệnh T-SQL INSERT. Bấm "Sao chép mã T-SQL" để mang vào SSMS chạy nạp vào Kho.
           </p>
         </div>
 
@@ -340,27 +363,37 @@ GO`;
 
           {/* Generated T-SQL Script Viewer */}
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-              <div className="flex items-center space-x-2">
-                <Code2 className="h-5 w-5 text-blue-400" />
-                <h3 className="text-base font-bold text-white">
-                  Mã T-SQL Tự Động Tra Cứu Khóa Ngoại (Không Bao Giờ Lỗi Conflict)
-                </h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-800 mb-4">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Code2 className="h-5 w-5 text-blue-400" />
+                  <h3 className="text-base font-bold text-white">
+                    Mã T-SQL Chuẩn Khóa Ngoại Cho SQL Server (SSMS)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Bấm nút bên dưới để copy mã mang vào SSMS chạy nạp vào CSDL. Khi copy, hệ thống sẽ tự động ghi nhận +1 bản ghi vào Web!
+                </p>
               </div>
 
+              {/* NÚT COPY MÃ & GHI NHẬN TĂNG +1 */}
               <button
                 onClick={handleCopySql}
-                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-colors cursor-pointer border border-slate-700"
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer shadow-lg ${
+                  copied
+                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 ring-2 ring-emerald-400'
+                    : 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-amber-500/20'
+                }`}
               >
                 {copied ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Đã sao chép!</span>
+                    <Check className="h-4 w-4" />
+                    <span>✓ ĐÃ SAO CHÉP & GHI NHẬN (+1 ROW)!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5 text-slate-400" />
-                    <span>Sao chép mã T-SQL</span>
+                    <Copy className="h-4 w-4" />
+                    <span>📋 SAO CHÉP MÃ T-SQL (NẠP VÀO SQL +1)</span>
                   </>
                 )}
               </button>
@@ -385,7 +418,7 @@ GO`;
                   className="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center space-x-1"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>Đồng bộ thêm (+1 Row)</span>
+                  <span>Xác nhận đã nạp SSMS (+1 Row)</span>
                 </button>
               </div>
             </div>
@@ -398,7 +431,7 @@ GO`;
       {!etlResult && !isProcessing && (
         <div className="p-10 border border-dashed border-slate-800 rounded-2xl text-center text-slate-500 text-xs sm:text-sm">
           <Terminal className="h-8 w-8 mx-auto mb-2 text-slate-600" />
-          <p>Nhập một URL bất kỳ hoặc bấm vào các nút link mẫu phía trên rồi nhấn <b>"⚡ CHẠY LUỒNG ETL VÀO KHO"</b> để trải nghiệm quy trình nạp dữ liệu chuẩn nghiệp vụ Data Warehouse!</p>
+          <p>Nhập một URL bất kỳ hoặc bấm vào các nút link mẫu phía trên rồi nhấn <b>"⚡ SINH MÃ ETL T-SQL"</b>, sau đó bấm <b>"Sao chép mã T-SQL"</b> để nạp vào SQL Server và cập nhật số dòng trên Web!</p>
         </div>
       )}
 
