@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
   body {
     background-color: #06080F;
     color: #F1F5F9;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   code, pre, .font-mono {
@@ -16,53 +25,57 @@
 .bg-cyber-grid {
   background-size: 36px 36px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 }
 
-/* Ambient Radial Glows */
+/* Ambient Radial Glows (Optimized with GPU transform) */
 .radial-glow-cyan {
   background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 65%);
+  transform: translateZ(0);
 }
 
 .radial-glow-indigo {
   background: radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+  transform: translateZ(0);
 }
 
-/* High-End Glassmorphism */
+/* High-Performance 120 FPS Glassmorphism (No heavy GPU Gaussian blur bottleneck) */
 .glass-panel {
-  background: rgba(13, 18, 30, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #090D18;
+  background: linear-gradient(180deg, rgba(14, 20, 36, 0.88) 0%, rgba(8, 12, 22, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .glass-panel-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .glass-panel-hover:hover {
-  background: rgba(18, 25, 42, 0.85);
-  border-color: rgba(6, 182, 212, 0.3);
+  background: linear-gradient(180deg, rgba(18, 25, 45, 0.92) 0%, rgba(10, 15, 28, 0.98) 100%);
+  border-color: rgba(6, 182, 212, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 12px 30px -10px rgba(6, 182, 212, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Custom Cyber / SOC Glowing Effects */
 .glow-emerald {
-  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.25);
 }
 
 .glow-crimson {
-  box-shadow: 0 0 35px -5px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 30px -5px rgba(239, 68, 68, 0.3);
 }
 
 .glow-cyan {
-  box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 30px -5px rgba(6, 182, 212, 0.25);
 }
 
 .glow-amber {
-  box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 30px -5px rgba(245, 158, 11, 0.25);
 }
 
 /* Shimmer Progress Animation */
@@ -83,14 +96,15 @@
   left: 0;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 2.5s infinite;
 }
 
 /* Radar Scan line */
 .radar-scan {
   background: conic-gradient(from 0deg at 50% 50%, rgba(6, 182, 212, 0.15) 0deg, transparent 60deg);
   animation: radar 3.5s linear infinite;
+  transform: translateZ(0);
 }
 
 @keyframes radar {
@@ -98,18 +112,44 @@
   to { transform: rotate(360deg); }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+/* Lenis Smooth Scroll Integration Rules */
+html.lenis, html.lenis body {
+  height: auto;
 }
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Ultra-smooth Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
 ::-webkit-scrollbar-track {
   background: #06080F;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  border: 2px solid #06080F;
+  transition: background 0.2s ease;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgba(6, 182, 212, 0.7);
 }
