@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Search, Scale, ShieldAlert, ShieldCheck, FileText, Download, ListChecks, 
+  Search, ShieldAlert, ShieldCheck, FileText, Download, ListChecks, 
   Lock, Unlock, Sparkles, RefreshCw, CreditCard, Code2, Globe, Database, 
   Layers, CheckCircle2, AlertTriangle, ArrowRight, Terminal, ExternalLink, Zap
 } from 'lucide-react';
 import { extractAndPredict } from '../utils/featureExtractor';
 import ETLPipelineSimulator from './ETLPipelineSimulator';
-import LiveThreatFeed from './LiveThreatFeed';
-import URLDuel from './URLDuel';
 import confetti from 'canvas-confetti';
 
 export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, totalRows = 235795, extraRows = 0 }) {
@@ -107,9 +105,6 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
   return (
     <div className="space-y-6">
 
-      {/* Live Threat Radar Feed */}
-      <LiveThreatFeed />
-
       {/* Mode Switcher - High Tech Segmented Control */}
       <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/80 border border-white/[0.08] backdrop-blur-xl shadow-xl w-fit">
         <button
@@ -121,19 +116,7 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
           }`}
         >
           <Search className="h-3.5 w-3.5" />
-          <span>1. Quét Đơn Lẻ (2 Fact & 5 Dim)</span>
-        </button>
-
-        <button
-          onClick={() => setScanTab('duel')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer flex items-center space-x-2 ${
-            scanTab === 'duel'
-              ? 'bg-gradient-to-r from-cyan-500/25 via-blue-500/25 to-indigo-500/25 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-              : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
-          }`}
-        >
-          <Scale className="h-3.5 w-3.5" />
-          <span>2. So Kèo Đối Kháng 2 URL (Duel)</span>
+          <span>1. Kiểm Tra URL Tự Nhập (2 Fact & 5 Dim)</span>
         </button>
 
         <button
@@ -145,7 +128,7 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
           }`}
         >
           <ListChecks className="h-3.5 w-3.5" />
-          <span>3. Quét Hàng Loạt Đa URL (Bảng 10 Cột)</span>
+          <span>2. Quét Hàng Loạt Đa URL (Bảng 10 Cột)</span>
         </button>
 
         <button
@@ -157,7 +140,7 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
           }`}
         >
           <Terminal className="h-3.5 w-3.5" />
-          <span>4. Luồng ETL Nạp Kho SQL Server</span>
+          <span>3. Luồng ETL Nạp Kho SQL Server</span>
         </button>
       </div>
 
@@ -561,10 +544,6 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* TAB DUEL: SO KÈO ĐỐI KHÁNG 2 URL                         */}
-      {/* ========================================================= */}
-      {scanTab === 'duel' && <URLDuel />}
 
       {/* ========================================================= */}
       {/* TAB 2: BATCH URL SCANNER (BẢNG HIỂN THỊ ĐỦ 2 FACT & 5 DIMENSION) */}
