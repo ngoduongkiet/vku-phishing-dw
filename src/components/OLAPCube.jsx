@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Code2, ArrowDownRight, Layers, Filter, CheckCircle2, Copy, Sparkles, Terminal } from 'lucide-react';
+import { Box, Code2, ArrowDownRight, Layers, Filter, CheckCircle2, Copy, Terminal } from 'lucide-react';
 
 export default function OLAPCube() {
   const [activeOp, setActiveOp] = useState('rollup');
@@ -8,10 +8,10 @@ export default function OLAPCube() {
   const operations = [
     {
       id: 'rollup',
-      title: '1. Roll-up (Cuộn gộp)',
-      subtitle: 'Tổng hợp từ Grain URL lên cấp Tên miền & Đuôi TLD',
-      explanation: 'Phép toán thu gọn các chiều dữ liệu chi tiết (Grain URL) lên mức tổng hợp cao hơn (TLD: .com, .org, .app...) để phân tích bức tranh tổng thể về các đuôi mạng bị lợi dụng nhiều nhất.',
-      sql: `-- KỊCH BẢN 1: PHÉP TOÁN ROLL-UP THEO ĐUÔI TÊN MIỀN (TLD)
+      title: '1. Roll-up (Aggregation)',
+      subtitle: 'Roll up from URL grain to Domain & TLD dimension',
+      explanation: 'Roll-up collapses granular URL measures into higher dimension hierarchies (TLD: .com, .org, .app...) to identify structural patterns across internet registries.',
+      sql: `-- SCENARIO 1: OLAP ROLL-UP BY TOP-LEVEL DOMAIN (TLD)
 SELECT 
     d.TLD,
     COUNT(f.FactID) AS TotalURLs,
@@ -24,7 +24,7 @@ JOIN dbo.Dim_Domain d ON f.DomainKey = d.DomainKey
 GROUP BY d.TLD
 HAVING COUNT(f.FactID) > 1000
 ORDER BY PhishingCount DESC;`,
-      tableHeaders: ['Đuôi TLD', 'Tổng số URL', 'Số lượng Lừa đảo', 'Tỷ lệ Lừa đảo (%)', 'Fact 1 (Sim TB)', 'Fact 2 (ExtRef TB)'],
+      tableHeaders: ['TLD', 'Total URLs', 'Phishing Count', 'Phishing Rate (%)', 'Fact 1 (Avg Sim)', 'Fact 2 (Avg ExtRef)'],
       tableData: [
         ['.com', '135,400', '58,200', '42.98%', '68.4', '42.1'],
         ['.org', '24,120', '3,100', '12.85%', '92.1', '68.5'],
@@ -35,10 +35,10 @@ ORDER BY PhishingCount DESC;`,
     },
     {
       id: 'slice',
-      title: '2. Slice (Cắt lát)',
-      subtitle: 'Cố định lát cắt theo Chiều Bảo Mật (IsHTTPS = 1)',
-      explanation: 'Phép toán cố định giá trị của một chiều duy nhất (SecurityKey: IsHTTPS = 1) nhằm vạch trần "Nghịch lý HTTPS": Kẻ lừa đảo hiện nay vẫn sở hữu chứng chỉ bảo mật xanh để đánh lừa tâm lý người dùng.',
-      sql: `-- KỊCH BẢN 2: PHÉP TOÁN SLICE - NGHỊCH LÝ HTTPS
+      title: '2. Slice (Single Dimension Cut)',
+      subtitle: 'Fix security dimension cut: IsHTTPS = 1',
+      explanation: 'Slice isolates a single dimension value (Security: IsHTTPS = 1) to quantitatively expose the "HTTPS Paradox": 49.2% of modern phishing domains possess legitimate SSL certificates.',
+      sql: `-- SCENARIO 2: OLAP SLICE - HTTPS PARADOX INSPECTION
 SELECT 
     l.LabelName,
     COUNT(f.FactID) AS TotalURLs,
@@ -48,20 +48,20 @@ SELECT
 FROM dbo.Fact_Phishing_Analysis f
 JOIN dbo.Dim_Security_Feature s ON f.SecurityKey = s.SecurityKey
 JOIN dbo.Dim_Label l ON f.LabelKey = l.LabelKey
-WHERE s.IsHTTPS = 1  -- CỐ ĐỊNH LÁT CẮT SLICE
+WHERE s.IsHTTPS = 1  -- FIXED SLICE CONSTRAINT
 GROUP BY l.LabelName;`,
-      tableHeaders: ['Phân Loại Nhãn', 'Số lượng URL có HTTPS', 'Tỷ lệ trong kho (%)', 'Fact 1: URL Similarity', 'Fact 2: External Ref'],
+      tableHeaders: ['Label Classification', 'URLs with HTTPS', 'DW Share (%)', 'Fact 1: Similarity', 'Fact 2: External Ref'],
       tableData: [
-        ['Hợp pháp (Legitimate)', '134,850', '57.19%', '100.0', '85.29'],
-        ['Lừa đảo (Phishing)', '49,664', '21.06%', '52.1', '1.85']
+        ['Legitimate (Safe)', '134,850', '57.19%', '100.0', '85.29'],
+        ['Phishing (Threat)', '49,664', '21.06%', '52.1', '1.85']
       ]
     },
     {
       id: 'drilldown',
-      title: '3. Drill-down (Khoan sâu)',
-      subtitle: 'Khoan sâu vào Danh mục Tài chính & Bẫy Mật khẩu',
-      explanation: 'Phép toán phân rã chi tiết từ mức cao xuống mức thuộc tính chuyên sâu (Bank = 1, Pay = 1, Crypto = 1) kết hợp với hành vi thu thập mật khẩu (HasPasswordField = 1) và gửi form sang server ngoài (HasExternalFormSubmit = 1).',
-      sql: `-- KỊCH BẢN 3: PHÉP TOÁN DRILL-DOWN VÀO MỤC TIÊU TÀI CHÍNH
+      title: '3. Drill-down (Decomposition)',
+      subtitle: 'Decompose into Financial Categories & Password Forms',
+      explanation: 'Drill-down traverses from coarse-grained categories to granular attributes (Bank, Pay, Crypto) combined with credential harvesting indicators (HasPasswordField = 1, HasExternalFormSubmit = 1).',
+      sql: `-- SCENARIO 3: OLAP DRILL-DOWN INTO FINANCIAL TARGETS
 SELECT 
     fin.FinancialCategory,
     sec.HasPasswordField,
@@ -72,23 +72,23 @@ SELECT
 FROM dbo.Fact_Phishing_Analysis f
 JOIN dbo.Dim_Financial_Keyword fin ON f.FinancialKey = fin.FinancialKey
 JOIN dbo.Dim_Security_Feature sec ON f.SecurityKey = sec.SecurityKey
-WHERE f.LabelKey = 0 -- Chỉ xét Web Lừa Đảo
+WHERE f.LabelKey = 0 -- Filter Threat Rows
 GROUP BY fin.FinancialCategory, sec.HasPasswordField, sec.HasExternalFormSubmit
 ORDER BY HighRisk_URLs DESC;`,
-      tableHeaders: ['Mục Tiêu Tài Chính', 'Chứa Form Pass', 'Gửi Form Ngoài', 'Số URL Độc Hại', 'Fact 1: Similarity', 'Fact 2: ExtRef'],
+      tableHeaders: ['Financial Target', 'Password Form', 'External Form Submit', 'High-Risk URLs', 'Fact 1: Similarity', 'Fact 2: ExtRef'],
       tableData: [
-        ['Giả mạo Ngân Hàng (Bank)', 'Có (1)', 'Có (1)', '14,820', '48.9', '0.8'],
-        ['Cổng Thanh Toán (Pay)', 'Có (1)', 'Có (1)', '9,410', '47.5', '1.1'],
-        ['Tiền Mã Hóa (Crypto)', 'Có (1)', 'Không (0)', '4,320', '51.0', '1.3'],
-        ['Thương mại điện tử', 'Có (1)', 'Có (1)', '6,150', '54.2', '2.4']
+        ['Banking Fake (Bank)', 'Yes (1)', 'Yes (1)', '14,820', '48.9', '0.8'],
+        ['Payment Gateway (Pay)', 'Yes (1)', 'Yes (1)', '9,410', '47.5', '1.1'],
+        ['Cryptocurrency (Crypto)', 'Yes (1)', 'No (0)', '4,320', '51.0', '1.3'],
+        ['E-Commerce', 'Yes (1)', 'Yes (1)', '6,150', '54.2', '2.4']
       ]
     },
     {
       id: 'dice',
-      title: '4. Dice (Cắt khối đa chiều)',
-      subtitle: 'Giao cắt 3 chiều: TLD .com + Bẫy Mật khẩu + Nhãn Phishing',
-      explanation: 'Phép toán trích xuất một khối con (sub-cube) thỏa mãn đồng thời nhiều điều kiện ràng buộc trên nhiều chiều không gian độc lập.',
-      sql: `-- KỊCH BẢN 4: PHÉP TOÁN DICE - TRÍCH XUẤT SUB-CUBE NGUY HIỂM NHẤT
+      title: '4. Dice (Multidimensional Sub-cube)',
+      subtitle: 'Intersection: TLD .com + Password Form + Phishing Label',
+      explanation: 'Dice extracts a restricted sub-cube satisfying multiple bounding constraints across orthogonal dimensions simultaneously.',
+      sql: `-- SCENARIO 4: OLAP DICE - EXTRACTING CRITICAL SUB-CUBE
 SELECT 
     d.Domain,
     f.URL,
@@ -97,11 +97,11 @@ SELECT
 FROM dbo.Fact_Phishing_Analysis f
 JOIN dbo.Dim_Domain d ON f.DomainKey = d.DomainKey
 JOIN dbo.Dim_Security_Feature s ON f.SecurityKey = s.SecurityKey
-WHERE d.TLD = 'com'               -- Chiều 1: TLD .com
-  AND s.HasPasswordField = 1      -- Chiều 2: Bẫy mật khẩu
-  AND f.LabelKey = 0              -- Chiều 3: Lừa đảo
+WHERE d.TLD = 'com'               -- Dim 1: TLD .com
+  AND s.HasPasswordField = 1      -- Dim 2: Password Form
+  AND f.LabelKey = 0              -- Dim 3: Phishing Label
 ORDER BY f.URLSimilarityIndex ASC;`,
-      tableHeaders: ['Tên Miền (Domain)', 'URL Bẫy Mật Khẩu', 'Fact 1 (Sim)', 'Fact 2 (ExtRef)', 'Tình trạng'],
+      tableHeaders: ['Domain', 'Credential Harvesting URL', 'Fact 1 (Sim)', 'Fact 2 (ExtRef)', 'Risk Tier'],
       tableData: [
         ['paypal-security-auth.com', 'http://paypal-security-auth.com/login', '48.0', '0.0', 'CRITICAL RISK'],
         ['chase-online-verify.com', 'http://chase-online-verify.com/signin', '46.5', '1.0', 'CRITICAL RISK'],
@@ -122,62 +122,50 @@ ORDER BY f.URLSimilarityIndex ASC;`,
   return (
     <div className="space-y-6">
 
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+      {/* Top Breadcrumb Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.08]">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">
-              MULTIDIMENSIONAL OLAP CUBE
-            </span>
-            <span className="text-xs text-slate-500 font-mono">STAR SCHEMA OPERATIONS</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
+            <span>OLAP MULTIDIMENSIONAL CUBE</span>
+            <span>/</span>
+            <span>KIMBALL STAR SCHEMA</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
-            Mô Phỏng 4 Phép Toán Khối Lập Phương OLAP
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">
+            4 Core OLAP Cube Operations
           </h1>
         </div>
-        <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
-          <Terminal className="h-4 w-4 text-cyan-400" />
-          <span>Kimball Dimensional Aggregation</span>
+        <div className="text-xs font-mono text-slate-400">
+          Dimensional Slice & Roll-up Testing
         </div>
       </div>
 
       {/* Operations Selector Card */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 relative overflow-hidden">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-400">
-            <Box className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
-              Chọn Phép Toán OLAP Muốn Trực Quan Hóa
-            </h2>
-            <p className="text-xs text-slate-400">
-              Chứng minh năng lực khai phá dữ liệu đa chiều trên kiến trúc Star Schema của Kho Dữ Liệu VKU
-            </p>
-          </div>
-        </div>
+      <div className="linear-card p-6">
+        <h2 className="text-sm font-bold text-white tracking-tight mb-1 font-mono uppercase">
+          Select OLAP Cube Operation
+        </h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Demonstrate multidimensional analytical queries on Kimball Star Schema in SQL Server.
+        </p>
 
         {/* 4 Operations Selector Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {operations.map(op => {
             const isActive = activeOp === op.id;
             return (
               <button
                 key={op.id}
                 onClick={() => setActiveOp(op.id)}
-                className={`p-4 rounded-xl border text-left transition-all cursor-pointer relative group ${
+                className={`p-3.5 rounded-lg border text-left transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-indigo-500/20 border-cyan-500/50 text-white shadow-lg shadow-cyan-500/10'
-                    : 'bg-slate-950/70 border-white/[0.08] text-slate-400 hover:border-white/20 hover:text-slate-200'
+                    ? 'bg-white/[0.1] border-white/20 text-white shadow-sm'
+                    : 'bg-[#0C0D12] border-white/5 text-slate-400 hover:text-white hover:border-white/10'
                 }`}
               >
-                {isActive && (
-                  <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/80"></span>
-                )}
-                <div className={`text-xs font-extrabold ${isActive ? 'text-cyan-300' : 'text-slate-200'}`}>
+                <div className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-slate-300'}`}>
                   {op.title}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-mono">
+                <div className="text-[11px] text-slate-500 mt-1 line-clamp-1 font-mono">
                   {op.subtitle}
                 </div>
               </button>
@@ -187,53 +175,51 @@ ORDER BY f.URLSimilarityIndex ASC;`,
       </div>
 
       {/* Operation Detail Box */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 space-y-6">
+      <div className="linear-card p-6 space-y-5">
         
         {/* Explanation */}
-        <div className="p-4 bg-slate-950/70 border border-cyan-500/20 rounded-xl">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono mb-1.5 flex items-center space-x-1.5">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Bản chất nghiệp vụ & Mục tiêu phân tích:</span>
+        <div className="p-4 bg-[#0C0D12] border border-white/5 rounded-lg">
+          <div className="text-[11px] font-mono uppercase font-semibold text-slate-400 mb-1">
+            Operational Logic & Business Context:
           </div>
-          <p className="text-sm text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
             {current.explanation}
           </p>
         </div>
 
         {/* Results Table */}
         <div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center space-x-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-              <span>Kết Quả Trích Xuất Dữ Liệu Đa Chiều (OLAP Result Set)</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+              OLAP Cube Execution Result Set
             </h3>
-            <span className="text-xs text-emerald-400 font-mono font-semibold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-              ✓ Thực thi thành công trong 0.08 giây (Indexed View)
+            <span className="text-[11px] text-emerald-400 font-mono">
+              ✓ Executed via Indexed View (0.08s)
             </span>
           </div>
 
-          <div className="overflow-x-auto border border-white/[0.08] rounded-xl bg-slate-950/60">
+          <div className="overflow-x-auto border border-white/10 rounded-lg">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-slate-950 text-slate-400 border-b border-white/[0.08]">
+              <thead className="bg-[#0C0D12] text-slate-400 border-b border-white/10">
                 <tr>
                   {current.tableHeaders.map((h, i) => (
-                    <th key={i} className="py-3 px-3.5 whitespace-nowrap">{h}</th>
+                    <th key={i} className="py-2.5 px-3 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.05] text-slate-300">
+              <tbody className="divide-y divide-white/[0.04] text-slate-300">
                 {current.tableData.map((row, rIdx) => (
-                  <tr key={rIdx} className="hover:bg-white/[0.03] transition-colors">
+                  <tr key={rIdx} className="hover:bg-white/[0.02]">
                     {row.map((cell, cIdx) => (
-                      <td key={cIdx} className="py-3 px-3.5 whitespace-nowrap">
+                      <td key={cIdx} className="py-2.5 px-3 whitespace-nowrap">
                         {cell.includes('%') ? (
-                          <span className="font-bold text-amber-400">{cell}</span>
+                          <span className="font-semibold text-amber-400">{cell}</span>
                         ) : cell === 'CRITICAL RISK' ? (
-                          <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
+                          <span className="px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-semibold">
                             {cell}
                           </span>
                         ) : cIdx === 0 ? (
-                          <span className="font-bold text-white">{cell}</span>
+                          <span className="font-semibold text-white">{cell}</span>
                         ) : (
                           <span>{cell}</span>
                         )}
@@ -249,30 +235,31 @@ ORDER BY f.URLSimilarityIndex ASC;`,
         {/* Generated T-SQL Query */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2 font-mono">
-              <Code2 className="h-4 w-4 text-cyan-400" />
-              <span>Câu Lệnh T-SQL Tương Ứng Trong SQL Server (SSMS):</span>
+            <span className="text-xs font-semibold text-slate-400 flex items-center space-x-1.5 font-mono">
+              <Code2 className="h-3.5 w-3.5 text-slate-400" />
+              <span>Corresponding T-SQL Statement (SSMS):</span>
             </span>
 
             <button
               onClick={handleCopySQL}
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-mono flex items-center space-x-1.5 transition-all cursor-pointer border border-white/[0.08] hover:border-cyan-500/40"
+              className="px-2.5 py-1 bg-[#141720] hover:bg-[#1A1F2C] text-slate-200 rounded border border-white/10 text-xs font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
             >
               {copied ? (
                 <>
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                  <span className="text-emerald-400 font-bold">Đã sao chép!</span>
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span className="text-emerald-400">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="h-3.5 w-3.5 text-cyan-400" />
-                  <span>Sao chép T-SQL</span>
+                  <Copy className="h-3 w-3 text-slate-400" />
+                  <span>Copy SQL</span>
+                  <kbd className="bg-white/10 text-slate-300 border-white/10">⌘C</kbd>
                 </>
               )}
             </button>
           </div>
 
-          <pre className="p-4 bg-slate-950/90 border border-white/[0.08] rounded-xl text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed shadow-inner">
+          <pre className="p-4 bg-[#0C0D12] border border-white/10 rounded-lg text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed">
             {current.sql}
           </pre>
         </div>

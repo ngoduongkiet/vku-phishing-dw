@@ -13,7 +13,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('scanner');
   const [auditTarget, setAuditTarget] = useState(null);
 
-  // Khởi tạo Lenis Smooth Momentum Scrolling (Lướt cuộn mượt mà có quán tính chuẩn Apple / Linear)
+  // Lenis Smooth Momentum Scrolling (Buttery smooth physics)
   useEffect(() => {
     let lenis;
     let rafId;
@@ -43,7 +43,7 @@ export default function App() {
     };
   }, []);
 
-  // Lưu trữ số bản ghi mới nạp qua ETL vào localStorage để web luôn tự tăng
+  // Live warehouse rows increment in localStorage
   const [extraRows, setExtraRows] = useState(() => {
     try {
       const saved = localStorage.getItem('vku_phishing_extra_rows');
@@ -78,13 +78,9 @@ export default function App() {
   const totalWarehouseRows = 235795 + extraRows;
 
   return (
-    <div className="min-h-screen bg-[#06080F] bg-cyber-grid text-slate-100 flex flex-col relative selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#0A0B0E] text-slate-100 flex flex-col relative selection:bg-white selection:text-slate-950">
       
-      {/* Dynamic Ambient Background Lights (Hardware accelerated, no layout shifts) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] radial-glow-cyan pointer-events-none -z-0"></div>
-      <div className="absolute top-[650px] right-0 w-[500px] h-[500px] radial-glow-indigo pointer-events-none -z-0"></div>
-
-      {/* Top Navbar với số dòng tự tăng theo thời gian thực */}
+      {/* Top Navbar */}
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={handleTabChange} 
@@ -118,30 +114,30 @@ export default function App() {
         />
       )}
 
-      {/* Footer Pro Max */}
-      <footer className="border-t border-white/[0.08] bg-[#05070D]/95 py-7 text-xs text-slate-400 font-mono relative z-10">
+      {/* Linear Style Minimalist Footer */}
+      <footer className="border-t border-white/[0.08] bg-[#0A0B0E] py-6 text-xs text-slate-400 font-mono relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-6 w-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-              <ShieldCheck className="h-3.5 w-3.5" />
+          <div className="flex items-center space-x-2.5">
+            <div className="h-5 w-5 rounded bg-[#161822] border border-white/10 flex items-center justify-center text-slate-300">
+              <ShieldCheck className="h-3 w-3 text-emerald-400" />
             </div>
             <div>
-              <span className="font-extrabold text-slate-200">PHISHING SENTINEL PLATFORM</span>
-              <span className="text-slate-500 ml-2">• TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG VIỆT - HÀN (VKU)</span>
+              <span className="font-semibold text-slate-200">PHISHING SENTINEL</span>
+              <span className="text-slate-500 ml-2">• VIETNAM - KOREA UNIVERSITY (VKU)</span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 text-[11px] text-slate-500">
+          <div className="flex items-center space-x-3 text-[11px] text-slate-500">
             <div>
-              Mô hình: <span className="text-cyan-400 font-bold">Star Schema ({totalWarehouseRows.toLocaleString()} URLs)</span>
+              Model: <span className="text-slate-300 font-medium">Star Schema ({totalWarehouseRows.toLocaleString()} rows)</span>
             </div>
             <span>•</span>
             <div>
-              AI: <span className="text-emerald-400 font-bold">Random Forest (99.99%)</span>
+              Engine: <span className="text-emerald-400 font-medium">Random Forest 99.99%</span>
             </div>
             <span>•</span>
-            <div className="text-amber-400 font-bold">
-              2 Fact Measures (59.4% Impact)
+            <div className="text-slate-300 font-medium">
+              2 Core Facts (59.4% Weight)
             </div>
           </div>
         </div>

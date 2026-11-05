@@ -13,8 +13,7 @@ import {
   Zap,
   TrendingDown,
   Layers,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from 'lucide-react';
 import { WAREHOUSE_METRICS, TLD_DISTRIBUTION, CORE_FACTS_COMPARISON } from '../data/sampleData';
 
@@ -48,247 +47,216 @@ export default function OLAPDashboard({ totalRows = 235795 }) {
   return (
     <div className="space-y-6">
 
-      {/* Top Banner / Breadcrumb Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+      {/* Top Breadcrumb Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.08]">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">
-              OLAP ANALYTICS ENGINE
-            </span>
-            <span className="text-xs text-slate-500 font-mono">SQL SERVER 2019 • KIMBALL STAR SCHEMA</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
+            <span>OLAP ANALYTICS ENGINE</span>
+            <span>/</span>
+            <span>KIMBALL STAR SCHEMA</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
-            Trung Tâm Phân Tích Dữ Liệu OLAP Đa Chiều
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">
+            Multidimensional OLAP Dashboard
           </h1>
         </div>
-        <div className="flex items-center space-x-3 text-xs font-mono">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-white/[0.08] flex items-center space-x-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-400">Indexed View:</span>
-            <span className="text-emerald-400 font-bold">{WAREHOUSE_METRICS.sqlServerIndexedViewSpeedup} Speedup</span>
-          </div>
+        <div className="flex items-center space-x-2 text-xs font-mono">
+          <span className="px-2.5 py-1 rounded bg-[#12141C] border border-white/10 text-slate-300">
+            Indexed View Speedup: <b className="text-emerald-400">{WAREHOUSE_METRICS.sqlServerIndexedViewSpeedup}</b>
+          </span>
         </div>
       </div>
 
-      {/* 4 Modernized KPI Cards with Glassmorphism */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Linear KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         
         {/* Card 1: Total Warehouse Rows */}
-        <div className="glass-panel glass-panel-hover p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all"></div>
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span className="tracking-wider uppercase text-[11px] font-mono">TỔNG BẢN GHI KHO DW</span>
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Database className="h-4 w-4" />
-            </div>
+        <div className="linear-card p-5">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+            <span className="uppercase text-[10px]">TOTAL WAREHOUSE ROWS</span>
+            <Database className="h-4 w-4 text-slate-400" />
           </div>
-          <div className="text-3xl font-black text-white font-mono tracking-tight">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-white tracking-tight">
             {totalRows.toLocaleString()}
           </div>
-          <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-mono mt-3">
-            <Zap className="h-3 w-3" />
-            <span>ETL Throughput: {WAREHOUSE_METRICS.etlThroughputRowsPerSec.toLocaleString()} dòng/s</span>
+          <div className="text-[11px] text-slate-400 font-mono mt-3">
+            ETL Throughput: <span className="text-slate-200 font-semibold">{WAREHOUSE_METRICS.etlThroughputRowsPerSec.toLocaleString()} rows/s</span>
           </div>
         </div>
 
         {/* Card 2: Legitimate URLs */}
-        <div className="glass-panel glass-panel-hover p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all"></div>
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span className="tracking-wider uppercase text-[11px] font-mono">WEB HỢP PHÁP (LEGIT)</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
+        <div className="linear-card p-5">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+            <span className="uppercase text-[10px]">LEGITIMATE RATIO</span>
+            <ShieldCheck className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-black text-emerald-400 font-mono tracking-tight">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-emerald-400 tracking-tight">
             {WAREHOUSE_METRICS.legitimatePct}%
           </div>
-          <div className="text-xs text-slate-400 font-mono mt-3">
-            {WAREHOUSE_METRICS.legitimateCount.toLocaleString()} URLs • <span className="text-emerald-400 font-bold">Label 1 (Safe)</span>
+          <div className="text-[11px] text-slate-400 font-mono mt-3">
+            {WAREHOUSE_METRICS.legitimateCount.toLocaleString()} URLs • <span className="text-emerald-400">Label 1 (Safe)</span>
           </div>
         </div>
 
         {/* Card 3: Phishing URLs */}
-        <div className="glass-panel glass-panel-hover p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-all"></div>
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span className="tracking-wider uppercase text-[11px] font-mono">WEB LỪA ĐẢO (PHISH)</span>
-            <div className="p-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
-              <ShieldAlert className="h-4 w-4" />
-            </div>
+        <div className="linear-card p-5">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+            <span className="uppercase text-[10px]">PHISHING RATIO</span>
+            <ShieldAlert className="h-4 w-4 text-red-400" />
           </div>
-          <div className="text-3xl font-black text-red-400 font-mono tracking-tight">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-red-400 tracking-tight">
             {WAREHOUSE_METRICS.phishingPct}%
           </div>
-          <div className="text-xs text-slate-400 font-mono mt-3">
-            {WAREHOUSE_METRICS.phishingCount.toLocaleString()} URLs • <span className="text-red-400 font-bold">Label 0 (Threat)</span>
+          <div className="text-[11px] text-slate-400 font-mono mt-3">
+            {WAREHOUSE_METRICS.phishingCount.toLocaleString()} URLs • <span className="text-red-400">Label 0 (Threat)</span>
           </div>
         </div>
 
         {/* Card 4: HTTPS Paradox */}
-        <div className="glass-panel glass-panel-hover p-5 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all"></div>
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-            <span className="tracking-wider uppercase text-[11px] font-mono">NGHỊCH LÝ HTTPS SSL</span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Lock className="h-4 w-4" />
-            </div>
+        <div className="linear-card p-5">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+            <span className="uppercase text-[10px]">HTTPS PARADOX</span>
+            <Lock className="h-4 w-4 text-amber-400" />
           </div>
-          <div className="text-3xl font-black text-amber-400 font-mono tracking-tight">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-amber-400 tracking-tight">
             {WAREHOUSE_METRICS.httpsParadoxPct}%
           </div>
-          <div className="text-xs text-slate-400 font-medium mt-3">
-            49.2% website phishing đã có chứng chỉ SSL xanh
+          <div className="text-[11px] text-slate-400 mt-3">
+            49.2% of phishing links have valid SSL certificates
           </div>
         </div>
 
       </div>
 
       {/* 2 Core Facts Comparison Visualizer */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
+      <div className="linear-card p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 pb-3 border-b border-white/[0.06]">
           <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
-                KIMBALL CORE MEASURES
-              </span>
-              <span className="text-xs text-slate-500 font-mono">FACT TABLE TELEMETRY</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-              Phân Tích Đối Sánh 2 Fact Đo Lường Cốt Lõi Trong Star Schema
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Experimental Comparison of 2 Core Fact Measures
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Dữ liệu tổng hợp từ truy vấn SQL Server OLAP trên {totalRows.toLocaleString()} bản ghi <code className="text-cyan-400 font-mono">dbo.Fact_Phishing_Analysis</code>
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              Aggregated across {totalRows.toLocaleString()} rows in <code className="text-slate-200">dbo.Fact_Phishing_Analysis</code>
             </p>
           </div>
-          <div className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold rounded-xl self-start flex items-center space-x-1.5 shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-            <span>Đóng góp 59.36% trọng số AI</span>
+          <div className="px-2.5 py-1 bg-white/[0.06] border border-white/10 text-slate-300 text-xs font-mono rounded self-start">
+            59.36% Total AI Feature Importance
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
-          {/* Fact 1 Comparison Card */}
-          <div className="bg-slate-950/70 border border-white/[0.08] p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
+          {/* Fact 1 */}
+          <div className="p-4 bg-[#0C0D12] rounded-lg border border-white/5">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-                  FACT 1 • MEASURE TRỌNG TÂM (36.9% AI)
+                <span className="text-[10px] font-mono uppercase text-slate-500 block">
+                  FACT 1 • WEIGHT: 36.9%
                 </span>
-                <span className="text-base font-extrabold text-white">
-                  URLSimilarityIndex (0 - 100 Điểm)
+                <span className="text-sm font-bold text-white">
+                  URLSimilarityIndex (0 - 100)
                 </span>
               </div>
-              <span className="text-xs font-mono text-red-400 font-bold bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-lg">
-                Tụt dốc -50.87 điểm
+              <span className="text-xs font-mono text-red-400 font-semibold bg-red-500/10 px-2 py-0.5 rounded">
+                Variance: -50.87
               </span>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <div className="flex justify-between text-xs mb-1.5 font-mono">
-                  <span className="text-slate-400">Website Hợp pháp (Legitimate)</span>
-                  <span className="font-bold text-emerald-400">100.0 điểm</span>
+                <div className="flex justify-between text-xs mb-1 font-mono">
+                  <span className="text-slate-400">Legitimate Baseline</span>
+                  <span className="font-semibold text-emerald-400">100.0</span>
                 </div>
-                <div className="h-3.5 w-full bg-slate-900 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                  <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full w-full animate-shimmer"></div>
+                <div className="h-2 w-full bg-[#161822] rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full w-full"></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between text-xs mb-1.5 font-mono">
-                  <span className="text-slate-400">Website Lừa đảo (Phishing)</span>
-                  <span className="font-bold text-red-400">49.13 điểm</span>
+                <div className="flex justify-between text-xs mb-1 font-mono">
+                  <span className="text-slate-400">Phishing Baseline</span>
+                  <span className="font-semibold text-red-400">49.13</span>
                 </div>
-                <div className="h-3.5 w-full bg-slate-900 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                  <div className="h-full bg-gradient-to-r from-red-600 to-rose-400 rounded-full w-[49.13%]"></div>
+                <div className="h-2 w-full bg-[#161822] rounded-full overflow-hidden">
+                  <div className="h-full bg-red-500 rounded-full w-[49.13%]"></div>
                 </div>
               </div>
             </div>
             
-            <div className="mt-4 p-3 bg-slate-900/60 rounded-xl border border-white/[0.05] text-[11px] text-slate-400 leading-relaxed font-sans">
-              💡 <b className="text-slate-200">Ý nghĩa nghiệp vụ:</b> Website chính thống luôn duy trì đúng tên thương hiệu nguyên bản (100 điểm). Ngược lại, kẻ tấn công phải biến dạng ký tự, chèn từ khóa phụ làm điểm tụt sâu xuống 49.13.
-            </div>
+            <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-white/5 leading-relaxed font-sans">
+              Authentic brands preserve exact naming (100.0). Attackers distort characters or inject sub-keywords, dropping similarity score to 49.13.
+            </p>
           </div>
 
-          {/* Fact 2 Comparison Card */}
-          <div className="bg-slate-950/70 border border-white/[0.08] p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
+          {/* Fact 2 */}
+          <div className="p-4 bg-[#0C0D12] rounded-lg border border-white/5">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-                  FACT 2 • MEASURE LIÊN KẾT (22.5% AI)
+                <span className="text-[10px] font-mono uppercase text-slate-500 block">
+                  FACT 2 • WEIGHT: 22.5%
                 </span>
-                <span className="text-base font-extrabold text-white">
-                  NoOfExternalRef (Số Liên Kết Ngoài)
+                <span className="text-sm font-bold text-white">
+                  NoOfExternalRef (External Backlinks)
                 </span>
               </div>
-              <span className="text-xs font-mono text-red-400 font-bold bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-lg">
-                Chênh lệch 75 lần
+              <span className="text-xs font-mono text-red-400 font-semibold bg-red-500/10 px-2 py-0.5 rounded">
+                75.5x Difference
               </span>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <div className="flex justify-between text-xs mb-1.5 font-mono">
-                  <span className="text-slate-400">Website Hợp pháp (Legitimate)</span>
-                  <span className="font-bold text-emerald-400">85.29 liên kết</span>
+                <div className="flex justify-between text-xs mb-1 font-mono">
+                  <span className="text-slate-400">Legitimate Baseline</span>
+                  <span className="font-semibold text-emerald-400">85.29 links</span>
                 </div>
-                <div className="h-3.5 w-full bg-slate-900 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                  <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full w-full animate-shimmer"></div>
+                <div className="h-2 w-full bg-[#161822] rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full w-full"></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between text-xs mb-1.5 font-mono">
-                  <span className="text-slate-400">Website Lừa đảo (Phishing)</span>
-                  <span className="font-bold text-red-400">1.13 liên kết</span>
+                <div className="flex justify-between text-xs mb-1 font-mono">
+                  <span className="text-slate-400">Phishing Baseline</span>
+                  <span className="font-semibold text-red-400">1.13 links</span>
                 </div>
-                <div className="h-3.5 w-full bg-slate-900 rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
-                  <div className="h-full bg-gradient-to-r from-red-600 to-rose-400 rounded-full w-[2.5%]"></div>
+                <div className="h-2 w-full bg-[#161822] rounded-full overflow-hidden">
+                  <div className="h-full bg-red-500 rounded-full w-[2.5%]"></div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 p-3 bg-slate-900/60 rounded-xl border border-white/[0.05] text-[11px] text-slate-400 leading-relaxed font-sans">
-              💡 <b className="text-slate-200">Ý nghĩa nghiệp vụ:</b> Web hợp pháp có mạng lưới backlink dày đặc (85.29 link). Web phishing chỉ là trang bẫy dựng vội để đánh cắp thông tin, cô lập hoàn toàn (trung bình chỉ 1.13 link ngoài).
-            </div>
+            <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-white/5 leading-relaxed font-sans">
+              Legitimate domains maintain high community citations (85.29). Disposable phishing bait pages are isolated (average 1.13 external citations).
+            </p>
           </div>
 
         </div>
       </div>
 
       {/* TLD Attack Distribution & Interactive Slicer */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div className="linear-card p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-white/[0.06]">
           <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
-                OLAP ROLL-UP OPERATION
-              </span>
-              <span className="text-xs text-slate-500 font-mono">DIM_DOMAIN AGGREGATION</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-              Phân Bố Tỷ Lệ Lừa Đảo Theo Đuôi Tên Miền (TLD Roll-up)
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Phishing Attack Distribution by TLD (OLAP Roll-up)
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Phép toán OLAP Roll-up từ từng URL chi tiết lên cấp độ đuôi tên miền (TLD)
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+              Aggregated from URL grain to Top-Level Domain dimension
             </p>
           </div>
 
           {/* Slicer Pill Buttons */}
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-slate-400 font-semibold font-mono">Lọc TLD:</span>
+          <div className="flex items-center space-x-1.5 text-xs font-mono">
+            <span className="text-slate-500">TLD Filter:</span>
             {['ALL', '.com', '.org', '.app', '.xyz'].map(tld => (
               <button
                 key={tld}
                 onClick={() => setSelectedTLD(tld)}
-                className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold border transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded text-xs transition-colors cursor-pointer ${
                   selectedTLD === tld
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-sm shadow-cyan-500/20'
-                    : 'bg-slate-900/60 text-slate-400 border-white/[0.08] hover:text-white hover:bg-white/[0.05]'
+                    ? 'bg-white text-slate-950 font-bold'
+                    : 'bg-[#0E1017] text-slate-400 hover:text-white border border-white/5'
                 }`}
               >
                 {tld}
@@ -298,38 +266,38 @@ export default function OLAPDashboard({ totalRows = 235795 }) {
         </div>
 
         {/* Bar chart grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TLD_DISTRIBUTION
             .filter(item => selectedTLD === 'ALL' || item.tld === selectedTLD)
             .map((item, idx) => (
-              <div key={idx} className="bg-slate-950/70 border border-white/[0.08] p-4 rounded-xl hover:border-cyan-500/30 transition-all">
+              <div key={idx} className="p-3.5 bg-[#0C0D12] border border-white/5 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-base font-extrabold text-white">{item.tld}</span>
-                  <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${
-                    item.rate > 80 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                    item.rate > 40 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                    'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  <span className="font-mono text-sm font-bold text-white">{item.tld}</span>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold ${
+                    item.rate > 80 ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                    item.rate > 40 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                    'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                   }`}>
-                    {item.rate}% Lừa đảo
+                    {item.rate}% Phish
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-400 mb-2 font-mono">
-                  Tổng mẫu: <b className="text-white">{item.total.toLocaleString()}</b>
+                <div className="text-[11px] text-slate-400 mb-1.5 font-mono">
+                  Sample: <span className="text-white font-medium">{item.total.toLocaleString()}</span>
                 </div>
 
-                <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/[0.05]">
+                <div className="w-full bg-[#161822] h-1.5 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      item.rate > 80 ? 'bg-gradient-to-r from-red-600 to-rose-400' : 
-                      item.rate > 40 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' : 
-                      'bg-gradient-to-r from-emerald-500 to-teal-400'
+                      item.rate > 80 ? 'bg-red-500' : 
+                      item.rate > 40 ? 'bg-amber-500' : 
+                      'bg-emerald-500'
                     }`}
                     style={{ width: `${item.rate}%` }}
                   ></div>
                 </div>
 
-                <div className="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
+                <div className="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
                   <span>Phish: {item.phishing.toLocaleString()}</span>
                   <span>Legit: {item.legit.toLocaleString()}</span>
                 </div>
@@ -338,56 +306,50 @@ export default function OLAPDashboard({ totalRows = 235795 }) {
         </div>
       </div>
 
-      {/* Fact Table Live Browser */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+      {/* Fact Table Staging Inspector */}
+      <div className="linear-card p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
           <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
-                STAGING DATA INSPECTOR
-              </span>
-              <span className="text-xs text-slate-500 font-mono">LIVE ROW SAMPLER</span>
-            </div>
-            <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
-              Trích Xuất Dữ Liệu Bảng Fact_Phishing_Analysis (SQL Server)
+            <h2 className="text-base font-bold text-white tracking-tight">
+              Fact_Phishing_Analysis Live Table Inspector
             </h2>
-            <p className="text-xs text-slate-400">
-              Kiểm tra trực tiếp các dòng bản ghi đại diện đã qua luồng Pentaho Data Integration ETL
+            <p className="text-xs text-slate-400 font-mono">
+              Sample records processed through Pentaho Data Integration pipeline
             </p>
           </div>
 
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm domain URL..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-white/[0.08] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 font-mono transition-all"
+              placeholder="Filter domain..."
+              className="w-full pl-9 pr-3 py-1.5 bg-[#0C0D12] border border-white/10 rounded-md text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 font-mono"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+        <div className="overflow-x-auto rounded-lg border border-white/10">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-950 text-slate-400 border-b border-white/[0.08]">
+            <thead className="bg-[#0C0D12] text-slate-400 border-b border-white/10">
               <tr>
-                <th className="py-3 px-3.5">FactID</th>
-                <th className="py-3 px-3.5">Domain</th>
-                <th className="py-3 px-3.5">TLD</th>
-                <th className="py-3 px-3.5">Giao thức</th>
-                <th className="py-3 px-3.5 text-right">Fact 1 (Sim)</th>
-                <th className="py-3 px-3.5 text-right">Fact 2 (ExtRef)</th>
-                <th className="py-3 px-3.5 text-center">Nhãn (Label)</th>
+                <th className="py-2.5 px-3">FactID</th>
+                <th className="py-2.5 px-3">Domain</th>
+                <th className="py-2.5 px-3">TLD</th>
+                <th className="py-2.5 px-3">Protocol</th>
+                <th className="py-2.5 px-3 text-right">Fact 1 (Sim)</th>
+                <th className="py-2.5 px-3 text-right">Fact 2 (ExtRef)</th>
+                <th className="py-2.5 px-3 text-center">Label</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.05] text-slate-300">
+            <tbody className="divide-y divide-white/[0.04] text-slate-300">
               {filteredRows.map((r, i) => (
-                <tr key={i} className="hover:bg-white/[0.03] transition-colors">
-                  <td className="py-2.5 px-3.5 text-slate-500 font-bold">#{r.id}</td>
-                  <td className="py-2.5 px-3.5 text-white font-medium">{r.domain}</td>
-                  <td className="py-2.5 px-3.5 text-cyan-400 font-bold">{r.tld}</td>
-                  <td className="py-2.5 px-3.5">
+                <tr key={i} className="hover:bg-white/[0.02]">
+                  <td className="py-2 px-3 text-slate-500 font-medium">#{r.id}</td>
+                  <td className="py-2 px-3 text-white font-medium">{r.domain}</td>
+                  <td className="py-2 px-3 text-slate-300">{r.tld}</td>
+                  <td className="py-2 px-3">
                     {r.https ? (
                       <span className="text-emerald-400 flex items-center space-x-1">
                         <Lock className="h-3 w-3" />
@@ -397,13 +359,13 @@ export default function OLAPDashboard({ totalRows = 235795 }) {
                       <span className="text-slate-500">HTTP</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3.5 text-right font-bold text-white">{r.sim}</td>
-                  <td className="py-2.5 px-3.5 text-right font-bold text-white">{r.ext}</td>
-                  <td className="py-2.5 px-3.5 text-center">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                  <td className="py-2 px-3 text-right font-semibold text-white">{r.sim}</td>
+                  <td className="py-2 px-3 text-right font-semibold text-white">{r.ext}</td>
+                  <td className="py-2 px-3 text-center">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                       r.label.includes('1')
-                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                        : 'bg-red-500/10 text-red-400 border-red-500/30'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}>
                       {r.label}
                     </span>
