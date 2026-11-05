@@ -50,9 +50,9 @@ export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, ex
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
               </span>
-              <span className="text-slate-400 font-medium">CSDL Kho SQL Server:</span>
+              <span className="text-slate-400 font-medium">SQL Server DW:</span>
               <span className="font-mono font-extrabold text-emerald-400 transition-all duration-300 text-xs">
-                {totalRows.toLocaleString()} Rows
+                {totalRows.toLocaleString('vi-VN')} Rows
               </span>
 
               {extraRows > 0 && (
@@ -76,8 +76,8 @@ export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, ex
             {/* AI Model Badge */}
             <div className="flex items-center space-x-2 bg-slate-900/80 border border-white/[0.08] px-3.5 py-1.5 rounded-xl shadow-inner backdrop-blur-md">
               <Cpu className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="text-slate-400 font-medium">Random Forest:</span>
-              <span className="font-mono font-bold text-cyan-400">99.99% Acc</span>
+              <span className="text-slate-400 font-medium">Mô hình AI:</span>
+              <span className="font-mono font-bold text-cyan-400">Random Forest 99.99%</span>
             </div>
 
             {/* Star Schema Badge */}
