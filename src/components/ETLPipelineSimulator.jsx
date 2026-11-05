@@ -97,7 +97,19 @@ BEGIN TRY
         );
     END;
 
-    -- 4. Đồng bộ vào Fact_Phishing_Analysis (nếu có trong CSDL)
+    -- 4. Đồng bộ vào Bảng Fact 2: Agg_Fact_Phishing_Summary (Fact Tổng Hợp)
+    IF OBJECT_ID('dbo.Agg_Fact_Phishing_Summary', 'U') IS NOT NULL
+    BEGIN
+        INSERT INTO dbo.Agg_Fact_Phishing_Summary (
+            LabelKey, SecurityKey, TLD, IsHTTPS, HasPasswordField,
+            TotalURLs, Avg_URLSimilarityIndex, Avg_NoOfExternalRef, Total_ExternalRef
+        ) VALUES (
+            @LabelKey, @SecurityKey, '${tldClean}', ${analyzed.isHttps ? 1 : 0}, ${analyzed.hasPasswordField ? 1 : 0},
+            1, ${analyzed.fact1_similarity.toFixed(2)}, ${analyzed.fact2_externalRef.toFixed(2)}, ${Math.round(analyzed.fact2_externalRef)}
+        );
+    END;
+
+    -- 5. Đồng bộ vào Fact_Phishing_Analysis (nếu có trong CSDL)
     IF OBJECT_ID('dbo.Fact_Phishing_Analysis', 'U') IS NOT NULL
     BEGIN
         INSERT INTO dbo.Fact_Phishing_Analysis (

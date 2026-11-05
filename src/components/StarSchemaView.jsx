@@ -17,25 +17,50 @@ export default function StarSchemaView() {
             <span>KIMBALL DIMENSIONAL ARCHITECTURE</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">
-            Star Schema Logical Architecture
+            Kiến Trúc Mô Hình Dữ Liệu: 2 Bảng Fact Riêng Biệt (Fact Constellation)
           </h1>
         </div>
-        <div className="text-xs font-mono text-slate-400">
-          1 Central Fact • 5 Dimensions
+        <div className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+          2 Fact Tables Riêng Biệt • 5 Conformed Dimensions
+        </div>
+      </div>
+
+      {/* 2 Fact Tables Architectural Explainer */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="linear-card p-4.5 border-l-2 border-l-cyan-500">
+          <div className="flex items-center justify-between text-xs font-mono">
+            <span className="font-bold text-cyan-400">BẢNG FACT 1: CHI TIẾT (ATOMIC FACT)</span>
+            <span className="text-slate-400">Grain: Từng URL đơn lẻ</span>
+          </div>
+          <div className="text-sm font-bold text-white mt-1 font-mono">dbo.Fact_Phishing_Detail</div>
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            Liên kết với <b>ĐỦ 5 BẢNG CHIỀU</b> qua Surrogate Keys. Chứa 2 thước đo Fact cốt lõi <code>URLSimilarityIndex</code> và <code>NoOfExternalRef</code>, hỗ trợ truy vấn chi tiết (Drill-down) từng URL cụ thể.
+          </p>
+        </div>
+
+        <div className="linear-card p-4.5 border-l-2 border-l-emerald-500">
+          <div className="flex items-center justify-between text-xs font-mono">
+            <span className="font-bold text-emerald-400">BẢNG FACT 2: TỔNG HỢP (AGGREGATE FACT)</span>
+            <span className="text-slate-400">Grain: TLD + An ninh + Nhãn</span>
+          </div>
+          <div className="text-sm font-bold text-white mt-1 font-mono">dbo.Agg_Fact_Phishing_Summary</div>
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            Liên kết với các <b>Conformed Dimensions</b> (Bảo mật, Nhãn, Tên miền). Lưu trữ các thước đo tính toán sẵn (Pre-computed Metrics) giúp truy vấn cuộn gộp (Roll-up) chạy dưới 2ms, tăng tốc báo cáo gấp 120 lần!
+          </p>
         </div>
       </div>
 
       {/* Table Selector Card */}
       <div className="linear-card p-6">
         <h2 className="text-sm font-bold text-white tracking-tight mb-1 font-mono uppercase">
-          Star Schema Tables Catalog
+          Danh Mục 7 Bảng Trong Mô Hình (2 Facts + 5 Dimensions)
         </h2>
         <p className="text-xs text-slate-400 mb-4">
-          Select any table to inspect its grain, surrogate primary keys, foreign keys, and attribute list.
+          Bấm vào bất kỳ bảng Fact hoặc Dimension nào để kiểm tra chi tiết cấu trúc hạt (Grain), khóa chính Surrogate Key, khóa ngoại FK và danh sách các thước đo/thuộc tính.
         </p>
 
         {/* Visual Star Layout Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5">
           {STAR_SCHEMA_TABLES.map((t, idx) => {
             const isSelected = selectedTable.name === t.name;
             const isFact = t.type.includes('FACT');

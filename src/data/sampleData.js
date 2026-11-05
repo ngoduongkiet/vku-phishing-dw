@@ -60,14 +60,24 @@ export const FEATURE_IMPORTANCES = [
 
 export const STAR_SCHEMA_TABLES = [
   {
-    name: 'Fact_Phishing_Analysis',
-    type: 'FACT (Central Event Table)',
-    grain: 'Mỗi dòng là một URL được phân tích an toàn',
+    name: 'Fact_Phishing_Detail',
+    type: 'FACT 1: CHI TIẾT (ATOMIC)',
+    grain: 'Mỗi dòng là 1 URL kiểm tra thực tế (Mức nguyên tử)',
     rows: '235,795 rows',
     pk: 'FactID (BIGINT IDENTITY)',
     fk: ['DomainKey -> Dim_Domain', 'SecurityKey -> Dim_Security_Feature', 'WebContentKey -> Dim_Web_Content', 'FinancialKey -> Dim_Financial_Keyword', 'LabelKey -> Dim_Label'],
-    measures: ['URLSimilarityIndex (Fact 1)', 'NoOfExternalRef (Fact 2)', 'URLLength', 'DomainLength', 'URLCount = 1'],
-    description: 'Trái tim lưu trữ toàn bộ sự kiện kiểm tra URL và 2 Fact đo lường cốt lõi.'
+    measures: ['URLSimilarityIndex (Fact 1)', 'NoOfExternalRef (Fact 2)', 'URLCount = 1'],
+    description: 'Bảng Fact chi tiết lưu vết toàn diện từng URL, kết nối với ĐỦ 5 BẢNG CHIỀU qua Surrogate Keys, hỗ trợ đào sâu (Drill-down) từng bản ghi.'
+  },
+  {
+    name: 'Agg_Fact_Phishing_Summary',
+    type: 'FACT 2: TỔNG HỢP (AGGREGATE)',
+    grain: 'Mức tổng hợp theo TLD + Cấp độ an ninh + Nhãn',
+    rows: 'Pre-computed summary',
+    pk: 'AggID (INT IDENTITY)',
+    fk: ['SecurityKey -> Dim_Security_Feature', 'LabelKey -> Dim_Label'],
+    measures: ['TotalURLs', 'Avg_URLSimilarityIndex', 'Avg_NoOfExternalRef', 'Total_ExternalRef'],
+    description: 'Bảng Fact tổng hợp sẵn (Summary Table) giúp các truy vấn cuộn gộp (Roll-up) chạy dưới 2ms, tối ưu tốc độ báo cáo OLAP mà không cần quét lại kho lớn.'
   },
   {
     name: 'Dim_Domain',

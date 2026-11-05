@@ -283,7 +283,7 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
               <div className="space-y-3">
                 <div className="flex items-center space-x-2 text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
                   <Zap className="h-4 w-4 text-emerald-400" />
-                  <span>PHẦN 1: 2 ĐẶC TRƯNG FACT CỐT LÕI (BẢNG FACT_PHISHING_ANALYSIS - 59.36% TRỌNG SỐ AI)</span>
+                  <span>PHẦN 1: 2 THƯỚC ĐO CỐT LÕI (BẢNG FACT_PHISHING_DETAIL - 59.36% TRỌNG SỐ AI)</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
