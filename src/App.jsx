@@ -126,7 +126,7 @@ export default function App() {
               <ShieldCheck className="h-3.5 w-3.5" />
             </div>
             <div>
-              <span className="font-extrabold text-slate-200">AEGIS PHISHMATRIX PLATFORM</span>
+              <span className="font-extrabold text-slate-200">PHISHING SENTINEL PLATFORM</span>
               <span className="text-slate-500 ml-2">• TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG VIỆT - HÀN (VKU)</span>
             </div>
           </div>

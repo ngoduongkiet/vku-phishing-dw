@@ -29,14 +29,14 @@ export default function Navbar({ activeTab, setActiveTab, totalRows = 235795, ex
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 tracking-wider text-lg">
-                  AEGIS PHISHMATRIX
+                  PHISHING SENTINEL
                 </span>
                 <span className="text-[9px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full shadow-sm shadow-cyan-500/20">
                   VKU DW PRO
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium">
-                Autonomous Data Warehouse & Cyber Threat Intelligence Platform
+                Autonomous Data Warehouse & URL Threat Detection Platform
               </p>
             </div>
           </div>
