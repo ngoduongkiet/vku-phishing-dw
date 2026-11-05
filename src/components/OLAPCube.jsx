@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Code2, ArrowDownRight, Layers, Filter, CheckCircle2, Copy } from 'lucide-react';
+import { Box, Code2, ArrowDownRight, Layers, Filter, CheckCircle2, Copy, Sparkles, Terminal } from 'lucide-react';
 
 export default function OLAPCube() {
   const [activeOp, setActiveOp] = useState('rollup');
@@ -9,7 +9,7 @@ export default function OLAPCube() {
     {
       id: 'rollup',
       title: '1. Roll-up (Cuộn gộp)',
-      subtitle: 'Tổng hợp từ cấp URL chi tiết lên cấp Tên miền & TLD',
+      subtitle: 'Tổng hợp từ Grain URL lên cấp Tên miền & Đuôi TLD',
       explanation: 'Phép toán thu gọn các chiều dữ liệu chi tiết (Grain URL) lên mức tổng hợp cao hơn (TLD: .com, .org, .app...) để phân tích bức tranh tổng thể về các đuôi mạng bị lợi dụng nhiều nhất.',
       sql: `-- KỊCH BẢN 1: PHÉP TOÁN ROLL-UP THEO ĐUÔI TÊN MIỀN (TLD)
 SELECT 
@@ -36,7 +36,7 @@ ORDER BY PhishingCount DESC;`,
     {
       id: 'slice',
       title: '2. Slice (Cắt lát)',
-      subtitle: 'Cắt một lát cắt cố định theo Chiều Bảo Mật (IsHTTPS = 1)',
+      subtitle: 'Cố định lát cắt theo Chiều Bảo Mật (IsHTTPS = 1)',
       explanation: 'Phép toán cố định giá trị của một chiều duy nhất (SecurityKey: IsHTTPS = 1) nhằm vạch trần "Nghịch lý HTTPS": Kẻ lừa đảo hiện nay vẫn sở hữu chứng chỉ bảo mật xanh để đánh lừa tâm lý người dùng.',
       sql: `-- KỊCH BẢN 2: PHÉP TOÁN SLICE - NGHỊCH LÝ HTTPS
 SELECT 
@@ -59,7 +59,7 @@ GROUP BY l.LabelName;`,
     {
       id: 'drilldown',
       title: '3. Drill-down (Khoan sâu)',
-      subtitle: 'Khoan sâu vào các mục tiêu Ngân hàng, Cổng thanh toán & Tiền ảo',
+      subtitle: 'Khoan sâu vào Danh mục Tài chính & Bẫy Mật khẩu',
       explanation: 'Phép toán phân rã chi tiết từ mức cao xuống mức thuộc tính chuyên sâu (Bank = 1, Pay = 1, Crypto = 1) kết hợp với hành vi thu thập mật khẩu (HasPasswordField = 1) và gửi form sang server ngoài (HasExternalFormSubmit = 1).',
       sql: `-- KỊCH BẢN 3: PHÉP TOÁN DRILL-DOWN VÀO MỤC TIÊU TÀI CHÍNH
 SELECT 
@@ -86,7 +86,7 @@ ORDER BY HighRisk_URLs DESC;`,
     {
       id: 'dice',
       title: '4. Dice (Cắt khối đa chiều)',
-      subtitle: 'Lọc giao nhau giữa 3 chiều: TLD .com + Form Mật khẩu + Nhãn Phishing',
+      subtitle: 'Giao cắt 3 chiều: TLD .com + Bẫy Mật khẩu + Nhãn Phishing',
       explanation: 'Phép toán trích xuất một khối con (sub-cube) thỏa mãn đồng thời nhiều điều kiện ràng buộc trên nhiều chiều không gian độc lập.',
       sql: `-- KỊCH BẢN 4: PHÉP TOÁN DICE - TRÍCH XUẤT SUB-CUBE NGUY HIỂM NHẤT
 SELECT 
@@ -122,40 +122,62 @@ ORDER BY f.URLSimilarityIndex ASC;`,
   return (
     <div className="space-y-6">
 
-      {/* Intro Card */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+        <div>
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">
+              MULTIDIMENSIONAL OLAP CUBE
+            </span>
+            <span className="text-xs text-slate-500 font-mono">STAR SCHEMA OPERATIONS</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+            Mô Phỏng 4 Phép Toán Khối Lập Phương OLAP
+          </h1>
+        </div>
+        <div className="flex items-center space-x-2 text-xs font-mono text-slate-400">
+          <Terminal className="h-4 w-4 text-cyan-400" />
+          <span>Kimball Dimensional Aggregation</span>
+        </div>
+      </div>
+
+      {/* Operations Selector Card */}
+      <div className="glass-panel rounded-2xl p-6 sm:p-7 relative overflow-hidden">
         <div className="flex items-center space-x-3 mb-2">
-          <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400">
+          <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-400">
             <Box className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-white tracking-tight">
-              Mô Phỏng 4 Phép Toán Khối Lập Phương OLAP (OLAP Cube Operations)
-            </h1>
+            <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+              Chọn Phép Toán OLAP Muốn Trực Quan Hóa
+            </h2>
             <p className="text-xs text-slate-400">
-              Chứng minh khả năng khai thác phân tích đa chiều trên kiến trúc Star Schema của Kho Dữ Liệu VKU
+              Chứng minh năng lực khai phá dữ liệu đa chiều trên kiến trúc Star Schema của Kho Dữ Liệu VKU
             </p>
           </div>
         </div>
 
-        {/* 4 Operations Selector */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+        {/* 4 Operations Selector Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-5">
           {operations.map(op => {
             const isActive = activeOp === op.id;
             return (
               <button
                 key={op.id}
                 onClick={() => setActiveOp(op.id)}
-                className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                className={`p-4 rounded-xl border text-left transition-all cursor-pointer relative group ${
                   isActive
-                    ? 'bg-blue-600/20 border-blue-500 text-white shadow-lg shadow-blue-500/10'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                    ? 'bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-indigo-500/20 border-cyan-500/50 text-white shadow-lg shadow-cyan-500/10'
+                    : 'bg-slate-950/70 border-white/[0.08] text-slate-400 hover:border-white/20 hover:text-slate-200'
                 }`}
               >
-                <div className={`text-xs font-extrabold ${isActive ? 'text-blue-400' : 'text-slate-300'}`}>
+                {isActive && (
+                  <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/80"></span>
+                )}
+                <div className={`text-xs font-extrabold ${isActive ? 'text-cyan-300' : 'text-slate-200'}`}>
                   {op.title}
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-mono">
                   {op.subtitle}
                 </div>
               </button>
@@ -165,12 +187,13 @@ ORDER BY f.URLSimilarityIndex ASC;`,
       </div>
 
       {/* Operation Detail Box */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-6">
+      <div className="glass-panel rounded-2xl p-6 sm:p-7 space-y-6">
         
         {/* Explanation */}
-        <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
-          <div className="text-xs font-bold uppercase tracking-wider text-blue-400 mb-1">
-            Bản chất nghiệp vụ của phép toán:
+        <div className="p-4 bg-slate-950/70 border border-cyan-500/20 rounded-xl">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono mb-1.5 flex items-center space-x-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Bản chất nghiệp vụ & Mục tiêu phân tích:</span>
           </div>
           <p className="text-sm text-slate-300 leading-relaxed">
             {current.explanation}
@@ -179,33 +202,36 @@ ORDER BY f.URLSimilarityIndex ASC;`,
 
         {/* Results Table */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">
-              Kết Quả Trích Xuất Dữ Liệu Đa Chiều Từ Kho (OLAP Result Set)
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center space-x-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span>Kết Quả Trích Xuất Dữ Liệu Đa Chiều (OLAP Result Set)</span>
             </h3>
-            <span className="text-xs text-emerald-400 font-mono font-semibold">
-              ✓ Thực thi thành công trong 0.08 giây
+            <span className="text-xs text-emerald-400 font-mono font-semibold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              ✓ Thực thi thành công trong 0.08 giây (Indexed View)
             </span>
           </div>
 
-          <div className="overflow-x-auto border border-slate-800 rounded-xl">
+          <div className="overflow-x-auto border border-white/[0.08] rounded-xl bg-slate-950/60">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
+              <thead className="bg-slate-950 text-slate-400 border-b border-white/[0.08]">
                 <tr>
                   {current.tableHeaders.map((h, i) => (
-                    <th key={i} className="py-2.5 px-3 whitespace-nowrap">{h}</th>
+                    <th key={i} className="py-3 px-3.5 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-slate-300 bg-slate-900/40">
+              <tbody className="divide-y divide-white/[0.05] text-slate-300">
                 {current.tableData.map((row, rIdx) => (
-                  <tr key={rIdx} className="hover:bg-slate-800/40">
+                  <tr key={rIdx} className="hover:bg-white/[0.03] transition-colors">
                     {row.map((cell, cIdx) => (
-                      <td key={cIdx} className="py-2.5 px-3 whitespace-nowrap">
+                      <td key={cIdx} className="py-3 px-3.5 whitespace-nowrap">
                         {cell.includes('%') ? (
                           <span className="font-bold text-amber-400">{cell}</span>
                         ) : cell === 'CRITICAL RISK' ? (
-                          <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">{cell}</span>
+                          <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
+                            {cell}
+                          </span>
                         ) : cIdx === 0 ? (
                           <span className="font-bold text-white">{cell}</span>
                         ) : (
@@ -223,30 +249,30 @@ ORDER BY f.URLSimilarityIndex ASC;`,
         {/* Generated T-SQL Query */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Code2 className="h-4 w-4 text-blue-400" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2 font-mono">
+              <Code2 className="h-4 w-4 text-cyan-400" />
               <span>Câu Lệnh T-SQL Tương Ứng Trong SQL Server (SSMS):</span>
             </span>
 
             <button
               onClick={handleCopySQL}
-              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-mono flex items-center space-x-1 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-mono flex items-center space-x-1.5 transition-all cursor-pointer border border-white/[0.08] hover:border-cyan-500/40"
             >
               {copied ? (
                 <>
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-400">Đã copy!</span>
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-bold">Đã sao chép!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="h-3 w-3" />
-                  <span>Copy SQL</span>
+                  <Copy className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>Sao chép T-SQL</span>
                 </>
               )}
             </button>
           </div>
 
-          <pre className="p-4 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed">
+          <pre className="p-4 bg-slate-950/90 border border-white/[0.08] rounded-xl text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed shadow-inner">
             {current.sql}
           </pre>
         </div>
