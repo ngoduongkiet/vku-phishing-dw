@@ -257,31 +257,33 @@ export default function StarSchemaView() {
               {/* CỘT PHẢI: BẢNG FACT 1 (CHI TIẾT) & 3 DIMENSIONS CÒN LẠI */}
               <div className="lg:col-span-5 space-y-3">
                 
-                {/* Fact 1: Fact_Phishing_Detail */}
-                <div className="p-4 rounded-xl bg-[#11141E] border-2 border-cyan-500/50 shadow-lg">
-                  <div className="flex items-center justify-between pb-2 border-b border-cyan-500/30">
-                    <div className="font-mono font-bold text-xs text-cyan-300">
-                      dbo.Fact_Phishing_Detail
+                {/* Dual Fact: Fact_URL_Similarity & Fact_External_Reference */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Fact 1 */}
+                  <div className="p-3 rounded-xl bg-[#11141E] border-2 border-cyan-500/50 shadow-lg">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-cyan-500/30">
+                      <div className="font-mono font-bold text-[11px] text-cyan-300 truncate">dbo.Fact_URL_Similarity</div>
+                      <span className="text-[8px] font-mono px-1 py-0.2 bg-cyan-500/20 text-cyan-300 rounded font-bold">FACT 1</span>
                     </div>
-                    <span className="text-[9px] font-mono px-1.5 py-0.2 bg-cyan-500/20 text-cyan-300 rounded font-bold">
-                      FACT 1 (ATOMIC 235k)
-                    </span>
+                    <div className="mt-2 text-[10px] font-mono space-y-0.5 text-slate-300">
+                      <div className="text-amber-400 font-bold">🔑 FactSimID (PK)</div>
+                      <div className="text-cyan-300">∞ 5 Foreign Keys</div>
+                      <div className="text-red-400 font-bold pt-1">🎯 URLSimilarityIndex</div>
+                      <div className="text-slate-400">URLCount = 1</div>
+                    </div>
                   </div>
 
-                  <div className="mt-2 text-xs font-mono grid grid-cols-2 gap-2 text-slate-300">
-                    <div>
-                      <div className="text-amber-400 font-bold">🔑 FactID (PK)</div>
-                      <div className="text-cyan-300">∞ DomainKey (FK)</div>
-                      <div className="text-cyan-300">∞ SecurityKey (FK)</div>
-                      <div className="text-cyan-300">∞ WebContentKey (FK)</div>
-                      <div className="text-cyan-300">∞ FinancialKey (FK)</div>
-                      <div className="text-cyan-300">∞ LabelKey (FK)</div>
+                  {/* Fact 2 */}
+                  <div className="p-3 rounded-xl bg-[#11141E] border-2 border-blue-500/50 shadow-lg">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-blue-500/30">
+                      <div className="font-mono font-bold text-[11px] text-blue-300 truncate">dbo.Fact_External_Reference</div>
+                      <span className="text-[8px] font-mono px-1 py-0.2 bg-blue-500/20 text-blue-300 rounded font-bold">FACT 2</span>
                     </div>
-                    <div>
+                    <div className="mt-2 text-[10px] font-mono space-y-0.5 text-slate-300">
+                      <div className="text-amber-400 font-bold">🔑 FactRefID (PK)</div>
+                      <div className="text-blue-300">∞ 5 Foreign Keys</div>
+                      <div className="text-emerald-400 font-bold pt-1">🎯 NoOfExternalRef</div>
                       <div className="text-slate-400">URL (NVARCHAR)</div>
-                      <div className="text-red-400 font-bold">🎯 URLSimilarityIndex</div>
-                      <div className="text-slate-200 font-bold">🎯 NoOfExternalRef</div>
-                      <div className="text-slate-400">URLCount = 1</div>
                     </div>
                   </div>
                 </div>

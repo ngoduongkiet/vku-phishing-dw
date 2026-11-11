@@ -24,6 +24,8 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
   const sampleSingleLinks = [
     { label: 'Đại học VKU (Hợp pháp)', url: 'https://vku.udn.vn/tuyen-sinh', isSafe: true },
     { label: 'Techcombank (Hợp pháp)', url: 'https://techcombank.com.vn', isSafe: true },
+    { label: 'Lừa đảo sforecast (tingia.gov.vn)', url: 'https://sforecast.com', isSafe: false },
+    { label: 'Mạo danh Vingroup Store', url: 'https://vingroup.store', isSafe: false },
     { label: 'Nhái Vietcombank OTP', url: 'http://vcb-digibank-xac-thuc-otp.xyz/login', isSafe: false },
     { label: 'Teramill Phishing (Kho DL)', url: 'http://www.teramill.com', isSafe: false },
     { label: 'Nhái PayPal Login (.tk)', url: 'http://secure-paypal-login-verify.tk/account', isSafe: false },
@@ -33,12 +35,14 @@ export default function URLScanner({ onOpenAudit, onRecordAdded, onResetRows, to
   const sampleBatchLinks = [
     'https://vku.udn.vn/tuyen-sinh',
     'https://techcombank.com.vn',
+    'https://sforecast.com',
+    'https://vingroup.store',
+    'https://ssiamvna.asia',
     'http://vcb-digibank-xac-thuc-otp.xyz/login',
     'http://www.teramill.com',
     'https://service-mitld.firebaseapp.com/',
     'http://secure-paypal-login-verify.tk/account',
-    'https://www.google.com',
-    'http://192.168.1.105/login-vcb.html'
+    'https://www.google.com'
   ].join('\n');
 
   const handleSingleScan = (targetUrl) => {

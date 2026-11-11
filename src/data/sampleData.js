@@ -60,20 +60,30 @@ export const FEATURE_IMPORTANCES = [
 
 export const STAR_SCHEMA_TABLES = [
   {
-    name: 'Fact_Phishing_Detail',
-    type: 'FACT 1: CHI TIẾT (ATOMIC)',
+    name: 'Fact_URL_Similarity',
+    type: 'FACT 1: TƯƠNG ĐỒNG URL (ATOMIC)',
     grain: 'Mỗi dòng là 1 URL kiểm tra thực tế (Mức nguyên tử)',
-    rows: '235,795 rows',
-    pk: 'FactID (BIGINT IDENTITY)',
+    rows: '235,800 rows',
+    pk: 'FactSimID (BIGINT IDENTITY)',
     fk: ['DomainKey -> Dim_Domain', 'SecurityKey -> Dim_Security_Feature', 'WebContentKey -> Dim_Web_Content', 'FinancialKey -> Dim_Financial_Keyword', 'LabelKey -> Dim_Label'],
-    measures: ['URLSimilarityIndex (Fact 1)', 'NoOfExternalRef (Fact 2)', 'URLCount = 1'],
-    description: 'Bảng Fact chi tiết lưu vết toàn diện từng URL, kết nối với ĐỦ 5 BẢNG CHIỀU qua Surrogate Keys, hỗ trợ đào sâu (Drill-down) từng bản ghi.'
+    measures: ['URLSimilarityIndex (Fact 1)', 'URLCount = 1'],
+    description: 'Bảng Fact 1 chuyên đo lường độ tương đồng từ vựng và cấu trúc của chuỗi URL so với tên miền gốc, kết nối ĐỦ 5 BẢNG CHIỀU (Surrogate Keys).'
+  },
+  {
+    name: 'Fact_External_Reference',
+    type: 'FACT 2: LIÊN KẾT NGOÀI (ATOMIC)',
+    grain: 'Mỗi dòng là 1 URL kiểm tra thực tế (Mức nguyên tử)',
+    rows: '235,800 rows',
+    pk: 'FactRefID (BIGINT IDENTITY)',
+    fk: ['DomainKey -> Dim_Domain', 'SecurityKey -> Dim_Security_Feature', 'WebContentKey -> Dim_Web_Content', 'FinancialKey -> Dim_Financial_Keyword', 'LabelKey -> Dim_Label'],
+    measures: ['NoOfExternalRef (Fact 2)'],
+    description: 'Bảng Fact 2 chuyên đo lường số lượng liên kết ngoài trang (Backlinks / Outbound links), vạch trần các trang phishing cô lập dựng tạm.'
   },
   {
     name: 'Agg_Fact_Phishing_Summary',
-    type: 'FACT 2: TỔNG HỢP (AGGREGATE)',
+    type: 'FACT 3: TỔNG HỢP (AGGREGATE)',
     grain: 'Mức tổng hợp theo TLD + Cấp độ an ninh + Nhãn',
-    rows: 'Pre-computed summary',
+    rows: '1,304 rows',
     pk: 'AggID (INT IDENTITY)',
     fk: ['SecurityKey -> Dim_Security_Feature', 'LabelKey -> Dim_Label'],
     measures: ['TotalURLs', 'Avg_URLSimilarityIndex', 'Avg_NoOfExternalRef', 'Total_ExternalRef'],
