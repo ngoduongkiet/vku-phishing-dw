@@ -96,9 +96,11 @@ const BRAND_TARGETS = [
 
 // 6. Suspicious Scam/Investment/Gambling keywords
 const SCAM_PATTERNS = [
-  'sforecast', 'forecast', 'invest', 'stockex', 'token', 'dautu', 'sinhloi',
+  'sforecast', 'forecast', 'invest', 'stockex', 'token', 'dautu', 'sinhloi', 'loinhuan',
   'appkiemtien', 'kiemtien', 'forex', 'lotusfn', 'kuvip', 'bumvip', 'playvip',
-  'taixiu', 'nohu', 'rikvip', 'lotteryvietnamese', 'stratestokex', 'aguih', 'pt31'
+  'taixiu', 'nohu', 'rikvip', 'lotteryvietnamese', 'stratestokex', 'aguih', 'pt31',
+  'sinhtrachoc', 'sinh-trac-hoc', 'xacthuc', 'xac-thuc', 'khoathe', 'khoa-the',
+  'nhanthuong', 'nhan-thuong', 'hoantien', 'hoan-tien'
 ];
 
 export function extractAndPredict(rawUrl) {
